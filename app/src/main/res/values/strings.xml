@@ -1,0 +1,10 @@
+<resources>
+    <!-- General App Strings -->
+    <string name="app_name">Aesir</string>
+
+    <!-- Main Activity Strings -->
+    <string name="search_button_text">Search</string>
+    <string name="search_list_description">Press the button to search nearby Bluetooth Devices.
+    They will appear in the list below.</string>
+    <string name="image_description_string">Placeholder</string>
+</resources>
