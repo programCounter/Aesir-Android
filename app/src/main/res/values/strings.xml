@@ -7,4 +7,7 @@
     <string name="search_list_description">Press the button to search nearby Bluetooth Devices.
     They will appear in the list below.</string>
     <string name="image_description_string">Placeholder</string>
+
+    <!-- Strings for DeviceScanActivity -->
+    <string name="unknown_device">Unknown Device</string>
 </resources>
