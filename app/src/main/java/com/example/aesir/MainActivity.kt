@@ -17,24 +17,33 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.le.*
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.*
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    //Global Variables
-    private val requestEnableBt: Int = 0
+
+    //Variables and instances of classes used globally
+    private val requestAccessFineLocation: Int = 0
+    private val requestEnableBt: Int = 1
     private var mScanner: BluetoothLeScanner? = null
     private val mCallback = MCallBack()
 
 
     //Functions
     override fun onCreate(savedInstanceState: Bundle?) {
+        //This code runs when the activity is created.
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //Check that permissions for the app have been granted
+        checkPermissions()
 
         //Find and reference items in Activity
         val searchButton = findViewById<Button>(R.id.search)
@@ -55,14 +64,28 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         //Check which activity we are returning from.
-        if(requestCode == requestEnableBt){
-            //Was Bluetooth turned on? Display result to user.
-            if(resultCode == Activity.RESULT_OK){
-                showToast("Bluetooth Enabled!")
-            }
-            else{
-                showToast("Bluetooth NOT Enabled!")
-            }
+        if (requestCode == requestEnableBt) {
+            displayPermissionStatus("Access to Bluetooth", resultCode)
+        }
+    }
+
+    private fun displayPermissionStatus(permissionName: String, resultCode: Int) {
+        if (resultCode == Activity.RESULT_OK){
+            showToast("$permissionName granted.")
+        }
+        else {
+            showToast("$permissionName NOT granted.")
+        }
+    }
+
+
+    private fun checkPermissions() {
+        //Checks for permissions when app is first opened
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+            // Permission is not granted, request access to permission
+
+            //Request the permission be granted
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), requestAccessFineLocation)
         }
     }
 
