@@ -21,7 +21,7 @@ import android.widget.ImageView
 import android.widget.TextView
 
 
-class DeviceListAdapter(private val context: Context, private val dataSource: MutableList<ScanResult>?): BaseAdapter(){
+class DeviceListAdapter(context: Context, private val dataSource: MutableList<ScanResult>?): BaseAdapter(){
 
     //Setup? !!Look into Layout Inflater!!
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -40,17 +40,30 @@ class DeviceListAdapter(private val context: Context, private val dataSource: Mu
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        //Get view for a row item
-        val rowView = inflater.inflate(R.layout.list_item_bt, parent, false)
+        val view: View
+        val holder: ViewHolder
 
-        //Get DeviceName element
-        val deviceNameTextView = rowView.findViewById(R.id.DeviceName) as TextView
+        // If no previous view existed create one
+        if (convertView == null) {
+            view = inflater.inflate(R.layout.list_item_bt, parent, false)
 
-        //Get DeviceAddress element
-        val deviceAddressTextView = rowView.findViewById(R.id.DeviceAddress) as TextView
+            holder = ViewHolder()
+            holder.titleTextView = view.findViewById(R.id.DeviceName) as TextView
+            holder.subtitleTextView = view.findViewById(R.id.DeviceAddress) as TextView
+            holder.thumbnailImageView = view.findViewById(R.id.DeviceThumbnail) as ImageView
 
-        //Get Thumbnail element
-        val deviceThumbnailImageView = rowView.findViewById(R.id.DeviceThumbnail) as ImageView
+            view.tag = holder
+        }
+        //
+        else {
+            view = convertView
+            holder = convertView.tag as ViewHolder
+        }
+
+        // Load subviews
+        val deviceNameTextView = holder.titleTextView
+        val deviceAddressTextView = holder.subtitleTextView
+        //val deviceThumbnailImageView = holder.thumbnailImageView
 
         //Populate fields with data
         val deviceBt = getItem(position) as ScanResult
@@ -59,6 +72,13 @@ class DeviceListAdapter(private val context: Context, private val dataSource: Mu
         deviceAddressTextView.text = deviceBt.device?.address
         //Change thumbnail according to if BSI OR LL
 
-        return rowView
+        return view
+    }
+
+
+    private class ViewHolder {
+        lateinit var titleTextView: TextView
+        lateinit var subtitleTextView: TextView
+        lateinit var thumbnailImageView: ImageView
     }
 }
