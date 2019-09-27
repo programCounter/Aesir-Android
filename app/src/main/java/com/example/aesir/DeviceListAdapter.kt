@@ -1,6 +1,7 @@
 /*
+File Name: DeciveListAdapter.kt
 Author: Riley Larche
-Date Updated: 2019-09-23
+Date Updated: 2019-09-26
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -50,6 +51,7 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
             holder = ViewHolder()
             holder.titleTextView = view.findViewById(R.id.DeviceName) as TextView
             holder.subtitleTextView = view.findViewById(R.id.DeviceAddress) as TextView
+            //holder.subtitleTextView = view.findViewById(R.id.rssi) as TextView
             holder.thumbnailImageView = view.findViewById(R.id.DeviceThumbnail) as ImageView
 
             view.tag = holder
@@ -63,13 +65,21 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
         // Load subviews
         val deviceNameTextView = holder.titleTextView
         val deviceAddressTextView = holder.subtitleTextView
+        //val deviceRssi = holder.subtitleTextView
         //val deviceThumbnailImageView = holder.thumbnailImageView
 
         //Populate fields with data
         val deviceBt = getItem(position) as ScanResult
 
-        deviceNameTextView.text = deviceBt.device?.name
+        if (deviceBt.device?.name == null) {
+            deviceNameTextView.text = "Unknown Device"
+        }
+        else {
+            deviceNameTextView.text = deviceBt.device?.name
+        }
+
         deviceAddressTextView.text = deviceBt.device?.address
+        //deviceRssi.text = deviceBt.rssi.toString()
         //Change thumbnail according to if BSI OR LL
 
         return view
