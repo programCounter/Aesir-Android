@@ -58,7 +58,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         scanner = mBluetoothAdapter.bluetoothLeScanner
 
         //Create search settings object
-        val mSettings: ScanSettings = ScanSettings.Builder().setReportDelay(reportDelay).build()
+        val mSettings = ScanSettings.Builder().setReportDelay(reportDelay).build()
 
         //Stop previous scan if there was one
         stopScanningBluetoothDevices(scanner)
