@@ -59,4 +59,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search" />
 
+    <Button
+        android:id="@+id/read_gatt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Read GATT"
+        tools:layout_editor_absoluteX="288dp"
+        tools:layout_editor_absoluteY="23dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

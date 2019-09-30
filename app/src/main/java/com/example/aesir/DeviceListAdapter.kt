@@ -71,11 +71,11 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
         //Populate fields with data
         val deviceBt = getItem(position) as ScanResult
 
-        if (deviceBt.device?.name == null) {
+        if (deviceBt.scanRecord?.deviceName == null) {
             deviceNameTextView.text = "Unknown Device"
         }
         else {
-            deviceNameTextView.text = deviceBt.device?.name
+            deviceNameTextView.text = deviceBt.scanRecord?.deviceName
         }
 
         deviceAddressTextView.text = deviceBt.device?.address

@@ -16,6 +16,7 @@ import android.app.Activity
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.le.*
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,6 +25,7 @@ import android.os.Bundle
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val requestAccessFineLocation: Int = 0
     private val requestEnableBt: Int = 1
     private val mGattCallback = GattCallback()
+    private var bluetoothGatt: BluetoothGatt? = null
 
     //Used classes
     private val tools = Tools(this)
@@ -66,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         //Find and reference items in Activity
         val searchButton = findViewById<Button>(R.id.search)
         val deviceList = findViewById<ListView>(R.id.device_list)
+        val readGATT = findViewById<Button>(R.id.read_gatt)
 
         //Update parameters for items in the View
         searchButton.setOnClickListener{
@@ -77,7 +81,7 @@ class MainActivity : AppCompatActivity() {
             val name = clickedItem.device.address
             tools.showToast("You clicked: $name")
 
-            clickedItem.device.connectGatt(this, true, mGattCallback)
+            //bluetoothGatt = clickedItem.device.connectGatt(this, true, mGattCallback)
         }
     }
 
@@ -99,9 +103,20 @@ class MainActivity : AppCompatActivity() {
 
 
     inner class GattCallback: BluetoothGattCallback() {
+        override fun onConnectionStateChange(gatt: BluetoothGatt, statis: Int, newState: Int) {
+
+        }
+
+        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+
+        }
+
         override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
-            val dataString = characteristic.value.toString()
-            tools.showToast("Data received: $dataString")
+
+        }
+
+        override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
+
         }
     }
 }
