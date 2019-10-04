@@ -2,6 +2,10 @@
     <!-- General App Strings -->
     <string name="app_name">Æsir</string>
     <string name="placeholder_text">Placeholder</string>
+    <string name="navigation_discover">Discover</string>
+    <string name="navigation_setup">Setup</string>
+    <string name="navigation_debug">Debug</string>
+    <string name="navigation_info">Info</string>
 
     <!-- Main Activity Strings -->
     <string name="search_button_text">Search</string>

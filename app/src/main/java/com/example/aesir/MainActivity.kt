@@ -14,21 +14,15 @@ Logic for MainActivity in app Aesir is contained in this file.
 //Packages and Imports
 package com.example.aesir
 
-import android.app.Activity
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
-import android.bluetooth.le.*
-import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.*
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import java.util.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,14 +30,15 @@ class MainActivity : AppCompatActivity() {
 
 
     //Private variables and values
-    private val requestAccessFineLocation: Int = 0
-    private val requestEnableBt: Int = 1
-    private var bluetoothGatt: BluetoothGatt? = null
+    //private val requestAccessFineLocation: Int = 0
+    //private val requestEnableBt: Int = 1
+    //private var bluetoothGatt: BluetoothGatt? = null
+    private var previous_fragment: MenuItem? = null
 
     //Used classes
     private val tools = Tools(this)
-    private val mBTLEAdapter = BluetoothLEAdapter(this)
-    private val mGattCallback = GattCallback()
+    //private val mBTLEAdapter = BluetoothLEAdapter(this)
+    //private val mGattCallback = GattCallback()
 
 
     //Functions
@@ -52,6 +47,71 @@ class MainActivity : AppCompatActivity() {
         this.supportActionBar?.hide()
         setContentView(R.layout.activity_main)
 
+        val fragmentManager = supportFragmentManager
+
+        //OnClick handlers for Navigation Bar
+        val navBar = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+
+        val itemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.navigation_discover -> {
+                    //Make sure that we wont re-draw the same fragment
+                    if (menuItem.itemId != previous_fragment?.itemId) {
+                        val fragment = Discover_Devices_Fragment()
+                        //fragmentManager.beginTransaction().replace(R.id.frame, fragment, fragment.javaClass.simpleName).commit()
+                        val transaction = fragmentManager.beginTransaction().apply {
+                            replace(R.id.frame, fragment)
+                            addToBackStack(null)
+                        }
+                        transaction.commit()
+                        previous_fragment = menuItem
+                        tools.showToast("You clicked Discover!")
+                        return@OnNavigationItemSelectedListener true
+                    }
+                }
+
+                R.id.navigation_setup -> {
+                    val fragment = Setup_Fragment()
+                    //fragmentManager.beginTransaction().replace(R.id.fragment, fragment, fragment.javaClass.simpleName).commit()
+                    val transaction = fragmentManager.beginTransaction().apply {
+                        replace(R.id.frame, fragment)
+                        addToBackStack(null)
+                    }
+                    transaction.commit()
+                    tools.showToast("You clicked Setup!")
+                    return@OnNavigationItemSelectedListener true
+                }
+
+                R.id.navigation_debug -> {
+                    val fragment = Debug_Fragment()
+                    //fragmentManager.beginTransaction().replace(R.id.frame, fragment, fragment.javaClass.simpleName).commit()
+                    val transaction = fragmentManager.beginTransaction().apply {
+                        replace(R.id.frame, fragment)
+                        addToBackStack(null)
+                    }
+                    transaction.commit()
+                    tools.showToast("You clicked Debug!")
+                    return@OnNavigationItemSelectedListener true
+                }
+
+                R.id.navigation_info -> {
+                    val fragment = Info_Fragment()
+                    //fragmentManager.beginTransaction().replace(R.id.frame, fragment, fragment.javaClass.simpleName).commit()
+                    val transaction = fragmentManager.beginTransaction().apply {
+                        replace(R.id.frame, fragment)
+                        addToBackStack(null)
+                    }
+                    transaction.commit()
+                    tools.showToast("You clicked Info!")
+                    return@OnNavigationItemSelectedListener true
+                }
+            }
+
+            false
+        }
+
+        navBar.setOnNavigationItemSelectedListener(itemSelectedListener)
+/*
         /*
         Move auto run functions like permission checking and first search to onStart()?
         User would see the UI before those functions start. Might make for more responsive UX.
@@ -128,7 +188,6 @@ class MainActivity : AppCompatActivity() {
 
             //If GATT_SUCCESS and STATE_CONNECTED find services on device
             if (status == 0 && newState == 2) {
-                Log.d("", "I got here")
                 gatt.discoverServices()
             }
         }
@@ -136,13 +195,13 @@ class MainActivity : AppCompatActivity() {
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
             super.onServicesDiscovered(gatt, status)
             if (status == 0) {
-                //val uuid: UUID = 0x180F
-                //val mServices = gatt?.getService(uuid)
+                val mServices = gatt?.services
 
             }
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+            //"Notification"
 
         }
 
@@ -152,6 +211,72 @@ class MainActivity : AppCompatActivity() {
 
         override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
 
+        }*/
+    }
+
+    fun ChangeFragment(fragmentManager: FragmentManager, fragmentToDisplay: Fragment) {
+        val transaction = fragmentManager.beginTransaction().apply {
+            replace(R.id.frame, fragmentToDisplay)
+            addToBackStack(null)
+        }
+
+        transaction.commit()
+    }
+
+    //Fragment Inner Classes
+    class Discover_Devices_Fragment : Fragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            //Inflate the layout for this fragment
+            return inflater.inflate(R.layout.discover_devices_fragment, container, false)
+        }
+    }
+
+    class Setup_Fragment : Fragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            //Inflate the layout for this fragment
+            return inflater.inflate(R.layout.setup_fragment, container, false)
+        }
+
+        override fun onActivityCreated(savedInstanceState: Bundle?) {
+            super.onActivityCreated(savedInstanceState)
+        }
+    }
+
+    class Debug_Fragment : Fragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            //Inflate the layout for this fragment
+            return inflater.inflate(R.layout.debug_fragment, container, false)
+        }
+
+        override fun onActivityCreated(savedInstanceState: Bundle?) {
+            super.onActivityCreated(savedInstanceState)
+        }
+    }
+
+    class Info_Fragment : Fragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            //Inflate the layout for this fragment
+            return inflater.inflate(R.layout.info_fragment, container, false)
+        }
+
+        override fun onActivityCreated(savedInstanceState: Bundle?) {
+            super.onActivityCreated(savedInstanceState)
         }
     }
 }
