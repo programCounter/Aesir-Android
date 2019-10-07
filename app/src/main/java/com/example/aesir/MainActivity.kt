@@ -37,17 +37,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.discover_devices_fragment.*
 
 
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnSearchButtonPressed {
-    // Public (Default) variables and values
-
-
-    // Private variables and values
-    private val requestAccessFineLocation: Int = 0
-    private val requestEnableBt: Int = 1
-    private var bluetoothGatt: BluetoothGatt? = null
-    private var previousFragment: MenuItem? = null
-
-
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
     // Used classes
     val tools = Tools(this)
     private val mBTLEAdapter = BluetoothLEAdapter(this)
@@ -56,6 +46,17 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnSearchButton
     private val setupFrag: Fragment = SetupFragment()
     private val debugFrag: Fragment = DebugFragment()
     private val infoFrag: Fragment = InfoFragment()
+
+
+    // Public (Default) variables and values
+
+
+    // Private variables and values
+    private val requestAccessFineLocation: Int = 0
+    private val requestEnableBt: Int = 1
+    private var bluetoothGatt: BluetoothGatt? = null
+    private var previousFragment: MenuItem? = null
+    val mBluetoothAdapter = mBTLEAdapter.getBluetooth()
 
 
     // Functions
@@ -124,18 +125,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnSearchButton
         changeFragment(fragmentManager, discoverFrag, null, 1)
 
         //Find and reference items in Discover Fragment
-        val searchButton = findViewById<Button>(R.id.search)
         val deviceList = findViewById<ListView>(R.id.device_list)
-
-        //Find bluetooth device and populate list right as app starts
-        val mBluetoothAdapter = mBTLEAdapter.getBluetooth()
-        mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
-
-        //Update parameters for items in Discover's View
-        //searchButton.setOnClickListener {
-        //    tools.showToast("Searching for Devices...")
-        //    mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
-        //}
 
         deviceList?.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
@@ -154,7 +144,22 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnSearchButton
 
     override fun OnButtonPressed() {
         tools.showToast("Searching for Devices...")
-        //mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
+        mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
+    }
+
+    override fun OnListPressed(): AdapterView.OnItemClickListener? {
+        return AdapterView.OnItemClickListener { parent, _, position, _ ->
+            val clickedItem = parent.getItemAtPosition(position) as ScanResult
+            val name = clickedItem.device.address
+            tools.showToast("You clicked: $name")
+
+            bluetoothGatt =
+                clickedItem.device.connectGatt(this@MainActivity, false, mGattCallback)
+            val attempt = bluetoothGatt?.discoverServices()
+            if (attempt == true) {
+                tools.showToast("Attempt made success")
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -216,12 +221,8 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnSearchButton
             }
         }
 
-        override fun onCharacteristicChanged(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic
-        ) {
+        override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             //"Notification"
-
         }
 
         override fun onCharacteristicRead(

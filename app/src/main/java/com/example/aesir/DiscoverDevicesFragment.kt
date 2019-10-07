@@ -5,11 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.discover_devices_fragment.*
 
 class DiscoverDevicesFragment : Fragment() {
-    private lateinit var listener: OnSearchButtonPressed
+    private lateinit var listener: OnPressed
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,12 +27,14 @@ class DiscoverDevicesFragment : Fragment() {
         search.setOnClickListener {
             listener.OnButtonPressed()
         }
+
+        device_list.onItemClickListener = listener.OnListPressed()
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 
-        if (context is OnSearchButtonPressed) {
+        if (context is OnPressed) {
             listener = context
         }
         else {
@@ -40,7 +43,8 @@ class DiscoverDevicesFragment : Fragment() {
     }
 
     // Container Activity must impliment this interface
-    interface OnSearchButtonPressed {
+    interface OnPressed {
         fun OnButtonPressed()
+        fun OnListPressed(): AdapterView.OnItemClickListener?
     }
 }
