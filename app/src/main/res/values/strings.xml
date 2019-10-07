@@ -8,11 +8,13 @@
     <string name="navigation_info">Info</string>
 
     <!-- Main Activity Strings -->
+
+    <!-- Discover Fragment Strings -->
+    <string name="discovery_fragment_title">Find your Local Listener</string>
     <string name="search_button_text">Search</string>
-    <string name="stop_button_text">Stop Searching</string>
     <string name="search_list_description">Press the button to search nearby Bluetooth Devices.
     They will appear in the list below. Click on a list item to connect to the device.</string>
-    <string name="image_description_string">An image is placed here.</string>
+    <string name="image_description_string">Device Icon Here</string>
 
     <!-- Strings for DeviceScanActivity -->
     <string name="unknown_device">Unknown Device</string>
