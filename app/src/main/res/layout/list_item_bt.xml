@@ -40,14 +40,4 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         app:layout_constraintStart_toStartOf="@+id/DeviceName"
         app:layout_constraintTop_toBottomOf="@+id/DeviceName" />
-
-    <TextView
-        android:id="@+id/rssi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/placeholder_text"
-        android:textStyle="bold|italic"
-        app:layout_constraintStart_toStartOf="@+id/DeviceAddress"
-        app:layout_constraintTop_toBottomOf="@+id/DeviceAddress" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,7 +6,7 @@ Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
 Logic that pertains to objects in the view for the
-Discover Devices fragment is contained in this file.
+Debug fragment is contained in this file.
  */
 
 
@@ -17,12 +17,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.discover_devices_fragment.*
+import kotlinx.android.synthetic.main.debug_fragment.*
 
-class DiscoverDevicesFragment : Fragment() {
-    private lateinit var listener: OnPressed
+class DebugFragment : Fragment() {
+    private lateinit var listener: DebugListener
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,23 +29,21 @@ class DiscoverDevicesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         //Inflate the layout for this fragment
-        return inflater.inflate(R.layout.discover_devices_fragment, container, false)
+        return inflater.inflate(R.layout.debug_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        search.setOnClickListener {
-            listener.onButtonPressed()
+        list_services.setOnClickListener {
+            listener.debugDataMover()
         }
-
-        device_list.onItemClickListener = listener.onListPressed()
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 
-        if (context is OnPressed) {
+        if (context is DebugListener) {
             listener = context
         }
         else {
@@ -54,9 +51,7 @@ class DiscoverDevicesFragment : Fragment() {
         }
     }
 
-    // Container Activity must implement this interface
-    interface OnPressed {
-        fun onButtonPressed()
-        fun onListPressed(): AdapterView.OnItemClickListener?
+    interface DebugListener {
+        fun debugDataMover()
     }
 }

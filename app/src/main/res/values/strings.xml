@@ -16,6 +16,23 @@
     They will appear in the list below. Click on a list item to connect to the device.</string>
     <string name="image_description_string">Device Icon Here</string>
 
+    <!-- Setup Fragment Strings -->
+    <string name="setup_fragment_title">Setup your Network</string>
+    <string name="setup_connection_subtitle">Connection Status:</string>
+
+    <!-- Debug Fragment Strings -->
+    <string name="debug_fragment_title">Debug your Device</string>
+    <string name="debug_services_list_title">List of Device Services:</string>
+    <string name="debug_characteristics_list_title">List of Device Characteristics</string>
+
+    <!-- Info Fragment Strings -->
+    <string name="info_fragment_title">About Æsir</string>
+    <string name="info_fragment_paragraph">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+    <string name="riot_logo_description">{RioT Logo}</string>
+
     <!-- Strings for DeviceScanActivity -->
     <string name="unknown_device">Unknown Device</string>
 </resources>

@@ -61,7 +61,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         val mSettings = ScanSettings.Builder().setReportDelay(reportDelay).build()
 
         //Stop previous scan if there was one
-        stopScanningBluetoothDevices(scanner)
+        //stopScanningBluetoothDevices(scanner)
 
         //Start new scanner
         tools.showToast("Scanning...")
@@ -91,6 +91,8 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
+
+            stopScanningBluetoothDevices(scanner)
 
             tools.showToast("Batch Results Found!")
 

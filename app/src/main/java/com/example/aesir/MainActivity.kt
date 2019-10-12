@@ -2,7 +2,7 @@
 File Name: MainActivity.kt
 Author: Riley Larche
 Date Updated: 2019-10-07
-Android Studio Version:
+Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
 Logic for MainActivity in app Aesir is contained in this file.
@@ -22,22 +22,19 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.os.Handler
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.Button
 import android.widget.ListView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.android.synthetic.main.discover_devices_fragment.*
+import kotlinx.android.synthetic.main.debug_fragment.*
 
 
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, DebugFragment.DebugListener {
     // Used classes
     val tools = Tools(this)
     private val mBTLEAdapter = BluetoothLEAdapter(this)
@@ -54,9 +51,10 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
     // Private variables and values
     private val requestAccessFineLocation: Int = 0
     private val requestEnableBt: Int = 1
+    private val mBluetoothAdapter = mBTLEAdapter.getBluetooth()
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
-    val mBluetoothAdapter = mBTLEAdapter.getBluetooth()
+    private var bluetoothServices: MutableList<BluetoothGattService?>? = null
 
 
     // Functions
@@ -64,18 +62,16 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
         super.onStart()
 
         //Check for permissions right as the app starts
-        if (ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_DENIED
-        ) {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
             // Permission is not granted, request access to permission
             // Request the permission be granted
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                requestAccessFineLocation
-            )
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), requestAccessFineLocation)
+        }
+
+        //If bluetooth is NOT enabled, request the user to do so here
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableBtIntent, requestEnableBt)
         }
     }
 
@@ -123,48 +119,38 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
 
         //Start with the discover fragment when the app opens
         changeFragment(fragmentManager, discoverFrag, null, 1)
-
-        //Find and reference items in Discover Fragment
-        val deviceList = findViewById<ListView>(R.id.device_list)
-
-        deviceList?.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, _, position, _ ->
-                val clickedItem = parent.getItemAtPosition(position) as ScanResult
-                val name = clickedItem.device.address
-                tools.showToast("You clicked: $name")
-
-                bluetoothGatt =
-                    clickedItem.device.connectGatt(this@MainActivity, false, mGattCallback)
-                val attempt = bluetoothGatt?.discoverServices()
-                if (attempt == true) {
-                    tools.showToast("Attempt made success")
-                }
-            }
     }
 
-    override fun OnButtonPressed() {
+    override fun onButtonPressed() {
         tools.showToast("Searching for Devices...")
         mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
     }
 
-    override fun OnListPressed(): AdapterView.OnItemClickListener? {
+    override fun onListPressed(): AdapterView.OnItemClickListener? {
         return AdapterView.OnItemClickListener { parent, _, position, _ ->
+            //Disconnect and stop scan before attempting a new connection just in case
+            bluetoothGatt?.close()
+
             val clickedItem = parent.getItemAtPosition(position) as ScanResult
             val name = clickedItem.device.address
             tools.showToast("You clicked: $name")
 
-            bluetoothGatt =
-                clickedItem.device.connectGatt(this@MainActivity, false, mGattCallback)
-            val attempt = bluetoothGatt?.discoverServices()
-            if (attempt == true) {
-                tools.showToast("Attempt made success")
-            }
+            val handler = Handler()
+            handler.postDelayed({
+                clickedItem.device.createBond()
+                bluetoothGatt = clickedItem.device.connectGatt(this, false, mGattCallback, BluetoothDevice.TRANSPORT_LE)
+            }, 500)
         }
+    }
+
+    override fun debugDataMover() {
+        val mAdapter = ServicesListAdapter(this, bluetoothServices)
+        val servicesList = findViewById<ListView>(R.id.debug_services_list)
+        servicesList.adapter = mAdapter
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        bluetoothGatt?.disconnect()
         bluetoothGatt?.close()
         tools.showToast("GATT Connection closed.")
     }
@@ -184,17 +170,11 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
         }
     }
 
-    private fun changeFragment(
-        fragmentManager: FragmentManager,
-        fragmentToDisplay: Fragment,
-        menuItem: MenuItem?,
-        isLaunch: Int
-    ) {
+    private fun changeFragment(fragmentManager: FragmentManager, fragmentToDisplay: Fragment, menuItem: MenuItem?, isLaunch: Int) {
         //Ensure that we are not navigating to the same fragment and then replace the view with the desired fragment
         if ((menuItem?.itemId != previousFragment?.itemId) || (isLaunch == 1)) {
             val transaction = fragmentManager.beginTransaction().apply {
                 replace(R.id.frame, fragmentToDisplay)
-                addToBackStack(null)
             }
 
             transaction.commit()
@@ -207,18 +187,15 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
 
-            //If GATT_SUCCESS and STATE_CONNECTED find services on device
-            if (status == 0 && newState == 2) {
+            //If we connected to the GATT server find services on device
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 gatt.discoverServices()
             }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
             super.onServicesDiscovered(gatt, status)
-            if (status == 0) {
-                //val mServices = gatt?.services
-                tools.showToast("I found some yummy services!")
-            }
+            bluetoothServices = gatt?.services
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
@@ -240,39 +217,5 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed {
         ) {
 
         }
-    }
-}
-
-//Fragment Classes
-class SetupFragment : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        //Inflate the layout for this fragment
-        return inflater.inflate(R.layout.setup_fragment, container, false)
-    }
-}
-
-class DebugFragment : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        //Inflate the layout for this fragment
-        return inflater.inflate(R.layout.debug_fragment, container, false)
-    }
-}
-
-class InfoFragment : Fragment() {
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        //Inflate the layout for this fragment
-        return inflater.inflate(R.layout.info_fragment, container, false)
     }
 }

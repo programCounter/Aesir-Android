@@ -51,7 +51,6 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
             holder = ViewHolder()
             holder.titleTextView = view.findViewById(R.id.DeviceName) as TextView
             holder.subtitleTextView = view.findViewById(R.id.DeviceAddress) as TextView
-            //holder.subtitleTextView = view.findViewById(R.id.rssi) as TextView
             holder.thumbnailImageView = view.findViewById(R.id.DeviceThumbnail) as ImageView
 
             view.tag = holder
@@ -79,8 +78,6 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
         }
 
         deviceAddressTextView.text = deviceBt.device?.address
-        //deviceRssi.text = deviceBt.rssi.toString()
-        //Change thumbnail according to if BSI OR LL
 
         return view
     }
