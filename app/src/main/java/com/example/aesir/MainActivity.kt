@@ -1,23 +1,27 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-10-07
+Date Updated: 2019-10-15
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
 Logic for MainActivity in app Aesir is contained in this file.
  */
 
+/*
+TODO List:
+    1.Fix bug: If BT is off, the app will crash upon launch
+    2.
+ */
 
-//BUG IN CODE: if bt is off app crashes
-
+//
 //Packages and Imports
+//
 package com.example.aesir
 
 import android.app.Activity
 import android.bluetooth.*
 import android.bluetooth.le.ScanResult
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -25,17 +29,21 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.widget.AdapterView
+import android.widget.EditText
 import android.widget.ListView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.android.synthetic.main.debug_fragment.*
 
-
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, DebugFragment.DebugListener {
+//
+// Start of MainActivity
+//
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, DebugFragment.DebugListener, SetupFragment.setup {
+    //
     // Used classes
+    //
     val tools = Tools(this)
     private val mBTLEAdapter = BluetoothLEAdapter(this)
     private val mGattCallback = GattCallback()
@@ -45,19 +53,28 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
     private val infoFrag: Fragment = InfoFragment()
 
 
+    //
     // Public (Default) variables and values
+    //
 
 
+    //
     // Private variables and values
+    //
     private val requestAccessFineLocation: Int = 0
     private val requestEnableBt: Int = 1
     private val mBluetoothAdapter = mBTLEAdapter.getBluetooth()
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
     private var bluetoothServices: MutableList<BluetoothGattService?>? = null
+    private var bsiList: MutableList<BSIEntry>? = ArrayList<BSIEntry>()
 
 
-    // Functions
+    //
+    // MainActivity Functions
+    //
+    // Runs before the view is created. Keep code minimal to provide
+    // a responsive UI
     override fun onStart() {
         super.onStart()
 
@@ -75,6 +92,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
         }
     }
 
+    // Runs when the view is created. Do setup for items in the view here.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.supportActionBar?.hide()
@@ -121,11 +139,58 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
         changeFragment(fragmentManager, discoverFrag, null, 1)
     }
 
+    // Runs when the view is destroyed (happens when the app is closed from recent apps).
+    // Shut anything down that should NOT be running in the background (e.g. a bluetooth connection)
+    override fun onDestroy() {
+        super.onDestroy()
+        bluetoothGatt?.close()
+        tools.showToast("GATT Connection closed.")
+    }
+
+    // Runs when MainActivity returns to focus (e.g. a system dialogue box closes with a result)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        //Check which activity we are returning from.
+        if (requestCode == requestEnableBt) {
+            displayPermissionStatus("Access to Bluetooth", resultCode)
+        }
+    }
+
+    private fun displayPermissionStatus(permissionName: String, resultCode: Int) {
+        if (resultCode == Activity.RESULT_OK) {
+            tools.showToast("$permissionName granted.")
+        } else {
+            tools.showToast("$permissionName NOT granted.")
+        }
+    }
+
+    // Runs when an item is clicked in the NavigationBar.
+    // Note: This function does NOT sync the highlighted item in the bar.
+    // It is possible for the active fragment to become out of sync with the highlighted option!
+    private fun changeFragment(fragmentManager: FragmentManager, fragmentToDisplay: Fragment, menuItem: MenuItem?, isLaunch: Int) {
+        // Ensure that we are not navigating to the same fragment and then replace the view with the desired fragment
+        if ((menuItem?.itemId != previousFragment?.itemId) || (isLaunch == 1)) {
+            val transaction = fragmentManager.beginTransaction().apply {
+                replace(R.id.frame, fragmentToDisplay)
+            }
+
+            // Make the view change and remember what fragment was just switched to.
+            transaction.commit()
+            previousFragment = menuItem
+        }
+    }
+
+
+    //
+    // DiscoverDevices Functions
+    //
+    // Runs when the Search button is pressed.
     override fun onButtonPressed() {
         tools.showToast("Searching for Devices...")
         mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
     }
 
+    // Runs when an item in the Device List is pressed.
+    // This initiates a GATT connection to the selected device.
     override fun onListPressed(): AdapterView.OnItemClickListener? {
         return AdapterView.OnItemClickListener { parent, _, position, _ ->
             //Disconnect and stop scan before attempting a new connection just in case
@@ -143,46 +208,56 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
         }
     }
 
+
+    //
+    // Setup Functions
+    //
+    // Runs when Add Device is pressed.
+    override fun onAddDevicesPressed() {
+        // Find the editable fields in the fragments view
+        // and retrieve the current typed string. Must convert to string
+        // because the field contains an editable string.
+        val macEntry = findViewById<EditText>(R.id.bsi_address_entry)
+        val friendEntry = findViewById<EditText>(R.id.bsi_friendly_name)
+
+        // Use data class to store data for passing to List Adapter.
+        var mBSI = BSIEntry(macEntry.text.toString())
+        mBSI.friendlyName = friendEntry.text.toString()
+
+        bsiList?.add(mBSI)
+
+        val mAdapter = BSIListAdapter(this, bsiList)
+        val bsiList = findViewById<ListView>(R.id.bsis_in_network_list)
+        bsiList.adapter = mAdapter
+
+        // Reset the typed text after the list has been updated.
+        macEntry.text = null
+        friendEntry.text = null
+    }
+
+    override fun onBSIListPressed(): AdapterView.OnItemClickListener? {
+        return AdapterView.OnItemClickListener {parent, _, position, _ ->
+            val clickedItem = parent.getItemAtPosition(position)
+        }
+    }
+
+
+    //
+    // Debug Functions
+    //
+    // Runs when the Populate button is pressed.
     override fun debugDataMover() {
         val mAdapter = ServicesListAdapter(this, bluetoothServices)
         val servicesList = findViewById<ListView>(R.id.debug_services_list)
         servicesList.adapter = mAdapter
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        bluetoothGatt?.close()
-        tools.showToast("GATT Connection closed.")
-    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //Check which activity we are returning from.
-        if (requestCode == requestEnableBt) {
-            displayPermissionStatus("Access to Bluetooth", resultCode)
-        }
-    }
-
-    private fun displayPermissionStatus(permissionName: String, resultCode: Int) {
-        if (resultCode == Activity.RESULT_OK) {
-            tools.showToast("$permissionName granted.")
-        } else {
-            tools.showToast("$permissionName NOT granted.")
-        }
-    }
-
-    private fun changeFragment(fragmentManager: FragmentManager, fragmentToDisplay: Fragment, menuItem: MenuItem?, isLaunch: Int) {
-        //Ensure that we are not navigating to the same fragment and then replace the view with the desired fragment
-        if ((menuItem?.itemId != previousFragment?.itemId) || (isLaunch == 1)) {
-            val transaction = fragmentManager.beginTransaction().apply {
-                replace(R.id.frame, fragmentToDisplay)
-            }
-
-            transaction.commit()
-            previousFragment = menuItem
-        }
-    }
-
-
+    //
+    // MainActivity Inner Classes
+    //
+    // Functions in this class run on a ASYNC callback.
+    // Bluetooth runs in a separate thread from the UI (main thread)
     inner class GattCallback : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
@@ -218,4 +293,12 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
 
         }
     }
+}
+
+
+//
+// MainActivity Data Classes
+//
+data class BSIEntry(val mac: String) {
+    var friendlyName: String = ""
 }

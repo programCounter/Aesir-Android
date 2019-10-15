@@ -35,4 +35,56 @@
         android:text="@string/placeholder_text"
         app:layout_constraintBottom_toBottomOf="@+id/textView7"
         app:layout_constraintStart_toEndOf="@+id/textView7" />
+
+    <EditText
+        android:id="@+id/bsi_address_entry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:ems="10"
+        android:hint="@string/setup_mac_address_hint"
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="275dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/setup_instructions"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView7" />
+
+    <EditText
+        android:id="@+id/bsi_friendly_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="@string/setup_friendly_name_hint"
+        android:inputType="textPersonName"
+        app:layout_constraintStart_toStartOf="@+id/bsi_address_entry"
+        app:layout_constraintTop_toBottomOf="@+id/bsi_address_entry" />
+
+    <Button
+        android:id="@+id/add_item_to_network"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/setup_add_items_to_network_button"
+        app:layout_constraintStart_toEndOf="@+id/bsi_address_entry"
+        app:layout_constraintTop_toTopOf="@+id/bsi_address_entry" />
+
+    <ListView
+        android:id="@+id/bsis_in_network_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bsi_friendly_name" />
 </androidx.constraintlayout.widget.ConstraintLayout>
