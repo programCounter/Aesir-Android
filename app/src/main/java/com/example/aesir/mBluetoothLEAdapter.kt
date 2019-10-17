@@ -36,6 +36,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     private val mCallback = MCallBack()
 
 
+
     //Used classes
     private val tools = Tools(activity)
 
@@ -100,8 +101,6 @@ class BluetoothLEAdapter(passedActivity: Activity) {
             val mAdapter = DeviceListAdapter(activity, scanResults)
             val deviceList = activity.findViewById<ListView>(R.id.device_list)
             deviceList.adapter = mAdapter
-
-            stopScanningBluetoothDevices(scanner)
         }
     }
 }

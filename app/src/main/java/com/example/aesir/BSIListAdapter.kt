@@ -1,3 +1,18 @@
+/*
+File Name: BSIListAdapter.kt
+Author: Riley Larche
+Date Updated: 2019-10-17
+Android Studio Version:3.5.1
+Tested on Android Version: 10 and 8
+
+Logic that pertains to the ListView for BSIs in
+SetupFragment.kt is contained in this file
+ */
+
+
+//
+// Packages and Imports
+//
 package com.example.aesir
 
 import android.content.Context
@@ -7,10 +22,19 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-class BSIListAdapter(context: Context, private val dataSource: MutableList<BSIEntry>?): BaseAdapter() {
 
+//
+// Adapter Class
+//
+class BSIListAdapter(context: Context, private val dataSource: MutableList<BSIEntry>?): BaseAdapter() {
+    //
+    // Private Class VAR and VAL
+    //
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
+    //
+    // Adapter Functions
+    //
     override fun getCount(): Int {
         return dataSource!!.size
     }
@@ -53,6 +77,9 @@ class BSIListAdapter(context: Context, private val dataSource: MutableList<BSIEn
         return view
     }
 
+    //
+    // Inner Classes
+    //
     private class ViewHolder {
         lateinit var titleTextView: TextView
         lateinit var subtitleTextView: TextView

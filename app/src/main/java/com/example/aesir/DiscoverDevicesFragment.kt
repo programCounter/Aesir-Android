@@ -12,6 +12,8 @@ Discover Devices fragment is contained in this file.
 
 package com.example.aesir
 
+
+import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -22,7 +24,7 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.discover_devices_fragment.*
 
 class DiscoverDevicesFragment : Fragment() {
-    private lateinit var listener: OnPressed
+    private lateinit var mInterface: Discover
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,18 +38,25 @@ class DiscoverDevicesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        search.setOnClickListener {
-            listener.onButtonPressed()
+        val listData = mInterface.discoverListViewDataMover()
+        val context = mInterface.discoverContextMover()
+
+        if (!listData.isNullOrEmpty()) {
+            device_list.adapter = DeviceListAdapter(context, listData)
         }
 
-        device_list.onItemClickListener = listener.onListPressed()
+        search.setOnClickListener {
+            mInterface.onButtonPressed()
+        }
+
+        device_list.onItemClickListener = mInterface.onListPressed()
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 
-        if (context is OnPressed) {
-            listener = context
+        if (context is Discover) {
+            mInterface = context
         }
         else {
             throw ClassCastException(context.toString() + "must implement OnSearchButtonPressed!")
@@ -55,7 +64,9 @@ class DiscoverDevicesFragment : Fragment() {
     }
 
     // Container Activity must implement this interface
-    interface OnPressed {
+    interface Discover {
+        fun discoverListViewDataMover(): MutableList<ScanResult>?
+        fun discoverContextMover(): Context
         fun onButtonPressed()
         fun onListPressed(): AdapterView.OnItemClickListener?
     }

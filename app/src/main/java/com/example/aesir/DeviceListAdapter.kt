@@ -1,7 +1,7 @@
 /*
 File Name: DeciveListAdapter.kt
 Author: Riley Larche
-Date Updated: 2019-09-26
+Date Updated: 2019-10-17
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -64,7 +64,6 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
         // Load subviews
         val deviceNameTextView = holder.titleTextView
         val deviceAddressTextView = holder.subtitleTextView
-        //val deviceRssi = holder.subtitleTextView
         //val deviceThumbnailImageView = holder.thumbnailImageView
 
         //Populate fields with data

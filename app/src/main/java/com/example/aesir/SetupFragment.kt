@@ -10,6 +10,9 @@ Setup fragment is contained in this file.
  */
 
 
+//
+// Packages and Imports
+//
 package com.example.aesir
 
 import android.content.Context
@@ -21,15 +24,21 @@ import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.setup_fragment.*
 
+
+//
+// Setup Fragment Class
+//
 class SetupFragment : Fragment() {
     //
     // Private class VAL or VAR
     //
     private lateinit var mInterface: Setup
 
+
     //
     // Fragment Functions
     //
+    // Runs when the fragment is being loaded by the FragmentManager in MainActivity
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,6 +48,7 @@ class SetupFragment : Fragment() {
         return inflater.inflate(R.layout.setup_fragment, container, false)
     }
 
+    // Runs when the view is done being created
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -51,6 +61,7 @@ class SetupFragment : Fragment() {
         bsis_in_network_list.onItemClickListener = mInterface.onBSIListPressed()
     }
 
+    // Runs when the view is attached (becomes one with) MainActivity
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 

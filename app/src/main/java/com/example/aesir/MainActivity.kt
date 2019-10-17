@@ -11,7 +11,7 @@ Logic for MainActivity in app Aesir is contained in this file.
 /*
 TODO List:
     1. Fix bug: If BT is off, the app will crash upon launch.
-    2. Retain fragment state when user re-navigates to it.
+    2. Retain fragment state when user re-navigates to it. [IN PROGRESS]
     3. Add fragment for BSI specific configuration tasks.
     4. Fix Bug: If doing an async task and the user navigates off the page it was initiated on,
     the app crashes when results are fed to UI element that no longer exists [NULL POINTER].
@@ -26,6 +26,7 @@ package com.example.aesir
 import android.app.Activity
 import android.bluetooth.*
 import android.bluetooth.le.ScanResult
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +34,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.widget.AdapterView
-import android.widget.BaseAdapter
 import android.widget.EditText
 import android.widget.ListView
 import androidx.core.app.ActivityCompat
@@ -45,12 +45,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //
 // Start of MainActivity
 //
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, DebugFragment.DebugListener, SetupFragment.Setup {
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, DebugFragment.DebugListener, SetupFragment.Setup {
     //
     // Used classes
     //
     val tools = Tools(this)
-    private val mBTLEAdapter = BluetoothLEAdapter(this)
+    private var mBTLEAdapter = BluetoothLEAdapter(this)
     private val mGattCallback = GattCallback()
     private val discoverFrag: Fragment = DiscoverDevicesFragment()
     private val setupFrag: Fragment = SetupFragment()
@@ -188,6 +188,19 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
     //
     // DiscoverDevices Functions
     //
+    // Runs when the view is created. Only populate list if there
+    // are items to populate it with.
+    override fun discoverListViewDataMover(): MutableList<ScanResult>? {
+        //if (mBTLEAdapter.scanResults.isNullOrEmpty()) {
+            //.adapter = DeviceListAdapter(this, mBTLEAdapter.scanResults)
+        //}
+        return mBTLEAdapter.scanResults
+    }
+
+    override fun discoverContextMover(): Context {
+        return this@MainActivity
+    }
+
     // Runs when the Search button is pressed.
     override fun onButtonPressed() {
         tools.showToast("Searching for Devices...")
@@ -231,7 +244,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
         val friendEntry = findViewById<EditText>(R.id.bsi_friendly_name)
 
         // Use data class to store data for passing to List Adapter. Check for null.
-        if (BSIEntry(macEntry.text.toString()) != null && friendEntry.text.toString() != null) {
+        if (macEntry.text.toString() != null && friendEntry.text.toString() != null) {
             var mBSI = BSIEntry(macEntry.text.toString())
             mBSI.friendlyName = friendEntry.text.toString()
 
@@ -251,7 +264,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
 
     override fun onBSIListPressed(): AdapterView.OnItemClickListener? {
         return AdapterView.OnItemClickListener {parent, _, position, _ ->
-            val clickedItem = parent.getItemAtPosition(position)
+            //val clickedItem = parent.getItemAtPosition(position)
         }
     }
 
