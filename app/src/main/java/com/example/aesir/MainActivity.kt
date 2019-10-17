@@ -10,8 +10,12 @@ Logic for MainActivity in app Aesir is contained in this file.
 
 /*
 TODO List:
-    1.Fix bug: If BT is off, the app will crash upon launch
-    2.
+    1. Fix bug: If BT is off, the app will crash upon launch.
+    2. Retain fragment state when user re-navigates to it.
+    3. Add fragment for BSI specific configuration tasks.
+    4. Fix Bug: If doing an async task and the user navigates off the page it was initiated on,
+    the app crashes when results are fed to UI element that no longer exists [NULL POINTER].
+    5. Come up with code naming standard and update/adhere to it.
  */
 
 //
@@ -29,6 +33,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.widget.AdapterView
+import android.widget.BaseAdapter
 import android.widget.EditText
 import android.widget.ListView
 import androidx.core.app.ActivityCompat
@@ -40,7 +45,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //
 // Start of MainActivity
 //
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, DebugFragment.DebugListener, SetupFragment.setup {
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, DebugFragment.DebugListener, SetupFragment.Setup {
     //
     // Used classes
     //
@@ -67,7 +72,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
     private var bluetoothServices: MutableList<BluetoothGattService?>? = null
-    private var bsiList: MutableList<BSIEntry>? = ArrayList<BSIEntry>()
+    private var bsiList: MutableList<BSIEntry>? = ArrayList()
 
 
     //
@@ -212,6 +217,11 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
     //
     // Setup Functions
     //
+    // Runs when the view is created.
+    override fun setupListViewDataMover(): BSIListAdapter {
+        return BSIListAdapter(this, bsiList)
+    }
+
     // Runs when Add Device is pressed.
     override fun onAddDevicesPressed() {
         // Find the editable fields in the fragments view
@@ -220,15 +230,19 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
         val macEntry = findViewById<EditText>(R.id.bsi_address_entry)
         val friendEntry = findViewById<EditText>(R.id.bsi_friendly_name)
 
-        // Use data class to store data for passing to List Adapter.
-        var mBSI = BSIEntry(macEntry.text.toString())
-        mBSI.friendlyName = friendEntry.text.toString()
+        // Use data class to store data for passing to List Adapter. Check for null.
+        if (BSIEntry(macEntry.text.toString()) != null && friendEntry.text.toString() != null) {
+            var mBSI = BSIEntry(macEntry.text.toString())
+            mBSI.friendlyName = friendEntry.text.toString()
 
-        bsiList?.add(mBSI)
+            bsiList?.add(mBSI)
+        }
 
-        val mAdapter = BSIListAdapter(this, bsiList)
-        val bsiList = findViewById<ListView>(R.id.bsis_in_network_list)
-        bsiList.adapter = mAdapter
+        if (!bsiList.isNullOrEmpty()) {
+            val mAdapter = BSIListAdapter(this, bsiList)
+            val bsiListView = findViewById<ListView>(R.id.bsis_in_network_list)
+            bsiListView.adapter = mAdapter
+        }
 
         // Reset the typed text after the list has been updated.
         macEntry.text = null
@@ -240,7 +254,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.OnPressed, Deb
             val clickedItem = parent.getItemAtPosition(position)
         }
     }
-
 
     //
     // Debug Functions

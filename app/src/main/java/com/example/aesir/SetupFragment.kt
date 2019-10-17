@@ -1,7 +1,7 @@
 /*
 File Name: DiscoverDevicesFragment.kt
 Author: Riley Larche
-Date Updated: 2019-10-07
+Date Updated: 2019-10-17
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -22,8 +22,14 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.setup_fragment.*
 
 class SetupFragment : Fragment() {
-    private lateinit var listener: setup
+    //
+    // Private class VAL or VAR
+    //
+    private lateinit var mInterface: Setup
 
+    //
+    // Fragment Functions
+    //
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,26 +42,33 @@ class SetupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bsis_in_network_list.adapter = mInterface.setupListViewDataMover()
+
         add_item_to_network.setOnClickListener {
-            listener.onAddDevicesPressed()
+            mInterface.onAddDevicesPressed()
         }
 
-        bsis_in_network_list.onItemClickListener = listener.onBSIListPressed()
+        bsis_in_network_list.onItemClickListener = mInterface.onBSIListPressed()
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 
-        if (context is setup) {
-            listener = context
+        if (context is Setup) {
+            mInterface = context
         }
         else {
             throw ClassCastException(context.toString() + "must implement OnSearchButtonPressed!")
         }
     }
 
-    interface setup {
+
+    //
+    // Fragment Interface(s)
+    //
+    interface Setup {
+        fun setupListViewDataMover(): BSIListAdapter
         fun onAddDevicesPressed()
-        fun onBSIListPressed() : AdapterView.OnItemClickListener?
+        fun onBSIListPressed(): AdapterView.OnItemClickListener?
     }
 }
