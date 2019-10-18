@@ -16,6 +16,7 @@ TODO List:
     4. Fix Bug: If doing an async task and the user navigates off the page it was initiated on,
     the app crashes when results are fed to UI element that no longer exists [NULL POINTER].
     5. Come up with code naming standard and update/adhere to it.
+    6. Fix the layout for SetupFragment. The list interfere with the text input fields.
  */
 
 //
@@ -45,7 +46,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 //
 // Start of MainActivity
 //
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, DebugFragment.DebugListener, SetupFragment.Setup {
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIFragment.BSI, DebugFragment.DebugListener, SetupFragment.Setup {
     //
     // Used classes
     //
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, Debu
     private val mGattCallback = GattCallback()
     private val discoverFrag: Fragment = DiscoverDevicesFragment()
     private val setupFrag: Fragment = SetupFragment()
+    private val bsiFrag: Fragment = BSIFragment()
     private val debugFrag: Fragment = DebugFragment()
     private val infoFrag: Fragment = InfoFragment()
 
@@ -69,10 +71,12 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, Debu
     private val requestAccessFineLocation: Int = 0
     private val requestEnableBt: Int = 1
     private val mBluetoothAdapter = mBTLEAdapter.getBluetooth()
+    private val fragmentManager = supportFragmentManager
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
     private var bluetoothServices: MutableList<BluetoothGattService?>? = null
     private var bsiList: MutableList<BSIEntry>? = ArrayList()
+    private var bsiListSelection = BSIEntry("")
 
 
     //
@@ -103,7 +107,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, Debu
         this.supportActionBar?.hide()
         setContentView(R.layout.activity_main)
 
-        val fragmentManager = supportFragmentManager
+        //val fragmentManager = supportFragmentManager
 
         //OnClick handlers for Navigation Bar
         val navBar = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
@@ -182,6 +186,14 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, Debu
             transaction.commit()
             previousFragment = menuItem
         }
+
+        // For navigation that does NOT originate from the NavBar
+        if (menuItem == null && isLaunch == 0) {
+            val transaction = fragmentManager.beginTransaction().apply {
+                replace(R.id.frame, fragmentToDisplay)
+            }
+            transaction.commit()
+        }
     }
 
 
@@ -212,7 +224,10 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, Debu
     override fun onListPressed(): AdapterView.OnItemClickListener? {
         return AdapterView.OnItemClickListener { parent, _, position, _ ->
             //Disconnect and stop scan before attempting a new connection just in case
-            bluetoothGatt?.close()
+            if (bluetoothGatt != null) {
+                bluetoothGatt?.disconnect()
+                bluetoothGatt?.close()
+            }
 
             val clickedItem = parent.getItemAtPosition(position) as ScanResult
             val name = clickedItem.device.address
@@ -264,9 +279,27 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, Debu
 
     override fun onBSIListPressed(): AdapterView.OnItemClickListener? {
         return AdapterView.OnItemClickListener {parent, _, position, _ ->
-            //val clickedItem = parent.getItemAtPosition(position)
+            bsiListSelection = parent.getItemAtPosition(position) as BSIEntry
+            changeFragment(fragmentManager, bsiFrag, null, 0)
         }
     }
+
+
+    //
+    // BSI Functions
+    //
+    override fun bsiObjectMover(): BSIEntry {
+        return bsiListSelection
+    }
+
+
+    //
+    // Setup Functions
+    //
+    override fun bsiFragmentContextMover(): Context {
+        return this@MainActivity
+    }
+
 
     //
     // Debug Functions

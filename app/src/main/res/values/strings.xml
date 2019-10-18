@@ -26,6 +26,15 @@
     <string name="setup_mac_address_hint">MAC AA:BB:CC:DD:EE:FF</string>
     <string name="setup_friendly_name_hint">Friendly Name</string>
 
+    <!-- BSI Fragment Strings -->
+    <string name="bsi_analog_sensor_1">Analog 1</string>
+    <string name="bsi_analog_sensor_2">Analog 2</string>
+    <string name="bsi_pulse_sensor">Pulse</string>
+    <string-array name="bsi_spinner_options">
+        <item>Active</item>
+        <item>Not Active</item>
+    </string-array>
+
     <!-- Debug Fragment Strings -->
     <string name="debug_fragment_title">Debug your Device</string>
     <string name="debug_services_list_title">List of Device Services:</string>
