@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
@@ -29,9 +30,9 @@ import androidx.fragment.app.Fragment
 //
 // Setup Fragment Class
 //
-class BSIFragment : Fragment() {
+class BSIFragment : Fragment(), AdapterView.OnItemSelectedListener {
     //
-    // Private class VAL or VAR
+    // Private VAL or VAR
     //
     private lateinit var mInterface: BSI
 
@@ -77,6 +78,8 @@ class BSIFragment : Fragment() {
             analog1spinner.adapter = adapter
         }
 
+        // Interface instance is this because Fragment extends it
+        analog1spinner.onItemSelectedListener = this
     }
 
     // Runs when the view is attached (becomes one with) MainActivity
@@ -89,6 +92,20 @@ class BSIFragment : Fragment() {
         else {
             throw ClassCastException(context.toString() + "must implement OnSearchButtonPressed!")
         }
+    }
+
+
+    //
+    // Spinner Listeners
+    //
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        if (position == 1) {
+            // Do something when active
+        }
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        // Maybe do something here? Do I have to?
     }
 
 

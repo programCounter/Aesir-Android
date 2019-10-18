@@ -2,15 +2,16 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/setup_bsi_title"
+        android:id="@+id/setup_bsi_title2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="@string/placeholder_text"
+        android:text="@string/bsi_fragment_title"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,12 +19,25 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/setup_bsi_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/placeholder_text"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/setup_bsi_title2" />
+
+    <TextView
         android:id="@+id/setup_bsi_connection_status_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="42dp"
         android:text="@string/setup_connection_subtitle"
-        app:layout_constraintStart_toStartOf="@+id/setup_bsi_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/setup_bsi_title" />
 
     <TextView
@@ -35,23 +49,203 @@
         app:layout_constraintBottom_toBottomOf="@+id/setup_bsi_connection_status_title"
         app:layout_constraintStart_toEndOf="@+id/setup_bsi_connection_status_title" />
 
-    <TextView
-        android:id="@+id/bsi_analog_1_text"
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="40dp"
-        android:text="@string/bsi_analog_sensor_1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/setup_bsi_connection_status_title" />
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/setup_bsi_connection_status_title">
 
-    <Spinner
-        android:id="@+id/bsi_analog_1_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        app:layout_constraintStart_toEndOf="@+id/bsi_analog_1_text"
-        app:layout_constraintTop_toTopOf="@+id/bsi_analog_1_text" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/bsi_analog_1_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/bsi_analog_sensor_1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/bsi_analog_1_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/bsi_analog_1_text"
+                app:layout_constraintTop_toTopOf="@+id/bsi_analog_1_text" />
+
+            <TextView
+                android:id="@+id/bsi_power_on_delay_analog1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/bsi_power_on_delay"
+                app:layout_constraintStart_toStartOf="@+id/bsi_analog_1_text"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_analog_1_spinner" />
+
+            <EditText
+                android:id="@+id/bsi_power_on_delay_input_analog1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/bsi_power_on_delay_input_hint"
+                android:inputType="number"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/bsi_power_on_delay_analog1"
+                app:layout_constraintStart_toEndOf="@+id/bsi_power_on_delay_analog1" />
+
+            <TextView
+                android:id="@+id/bsi_measurement_interval_analog1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/bsi_measurement_interval"
+                app:layout_constraintStart_toStartOf="@+id/bsi_power_on_delay_analog1"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_power_on_delay_analog1" />
+
+            <EditText
+                android:id="@+id/bsi_measurement_interval_input_analog1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/bsi_measurement_interval_input_hint"
+                android:inputType="number"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/bsi_measurement_interval_analog1"
+                app:layout_constraintStart_toEndOf="@+id/bsi_measurement_interval_analog1" />
+
+            <TextView
+                android:id="@+id/bsi_analog_2_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="40dp"
+                android:text="@string/bsi_analog_sensor_2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_measurement_interval_analog1" />
+
+            <Spinner
+                android:id="@+id/bsi_analog_2_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/bsi_analog_2_text"
+                app:layout_constraintTop_toTopOf="@+id/bsi_analog_2_text" />
+
+            <TextView
+                android:id="@+id/bsi_power_on_delay_analog2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/bsi_power_on_delay"
+                app:layout_constraintStart_toStartOf="@+id/bsi_analog_2_text"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_analog_2_spinner" />
+
+            <EditText
+                android:id="@+id/bsi_power_on_delay_input_analog2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/bsi_power_on_delay_input_hint"
+                android:inputType="number"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/bsi_power_on_delay_analog2"
+                app:layout_constraintStart_toEndOf="@+id/bsi_power_on_delay_analog2" />
+
+            <TextView
+                android:id="@+id/bsi_measurement_interval_analog2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/bsi_measurement_interval"
+                app:layout_constraintStart_toStartOf="@+id/bsi_power_on_delay_analog2"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_power_on_delay_analog2" />
+
+            <EditText
+                android:id="@+id/bsi_measurement_interval_input_analog2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/bsi_measurement_interval_input_hint"
+                android:inputType="number"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/bsi_measurement_interval_analog2"
+                app:layout_constraintStart_toEndOf="@+id/bsi_measurement_interval_analog2" />
+
+
+            <TextView
+                android:id="@+id/bsi_pulse_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="40dp"
+                android:text="@string/bsi_pulse_sensor"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_measurement_interval_analog2" />
+
+            <Spinner
+                android:id="@+id/bsi_pulse_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintStart_toEndOf="@+id/bsi_pulse_text"
+                app:layout_constraintTop_toTopOf="@+id/bsi_pulse_text" />
+
+            <TextView
+                android:id="@+id/bsi_power_on_delay_pulse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:text="@string/bsi_flood_alarm_trigger_pulse"
+                app:layout_constraintStart_toStartOf="@+id/bsi_pulse_text"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_pulse_spinner" />
+
+            <EditText
+                android:id="@+id/bsi_power_on_delay_input_pulse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/bsi_flood_alarm_rate_hint"
+                android:inputType="number"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/bsi_power_on_delay_pulse"
+                app:layout_constraintStart_toEndOf="@+id/bsi_power_on_delay_pulse" />
+
+            <TextView
+                android:id="@+id/bsi_measurement_interval_pulse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/bsi_flood_alarm_shutoff_rate"
+                app:layout_constraintStart_toStartOf="@+id/bsi_power_on_delay_pulse"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_power_on_delay_pulse" />
+
+            <EditText
+                android:id="@+id/bsi_measurement_interval_input_pulse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ems="10"
+                android:hint="@string/bsi_flood_alarm_rate_hint"
+                android:inputType="number"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@id/bsi_measurement_interval_pulse"
+                app:layout_constraintStart_toEndOf="@+id/bsi_measurement_interval_pulse" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

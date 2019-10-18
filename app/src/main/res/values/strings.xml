@@ -6,6 +6,7 @@
     <string name="navigation_setup">Setup</string>
     <string name="navigation_debug">Debug</string>
     <string name="navigation_info">Info</string>
+    <string name="setup_connection_subtitle">Local Listener Connection Status:</string>
 
     <!-- Main Activity Strings -->
 
@@ -18,7 +19,6 @@
 
     <!-- Setup Fragment Strings -->
     <string name="setup_fragment_title">Setup your Network</string>
-    <string name="setup_connection_subtitle">Connection Status:</string>
     <string name="setup_instructions">Enter the MAC address for the BSI unit you wish to add to your network.
         You may also create a Friendly Name for easier tracking of the device. Hit "Add Device" when you are done.
         To add more devices to the network, simply keep adding them below.</string>
@@ -27,13 +27,21 @@
     <string name="setup_friendly_name_hint">Friendly Name</string>
 
     <!-- BSI Fragment Strings -->
+    <string name="bsi_fragment_title">BSI Setup for:</string>
     <string name="bsi_analog_sensor_1">Analog 1</string>
+    <string-array name="bsi_spinner_options">
+        <item>Not Active</item>
+        <item>Active</item>
+    </string-array>
+    <string name="bsi_power_on_delay">Power On Delay (seconds)</string>
+    <string name="bsi_power_on_delay_input_hint">Time (ss)</string>
+    <string name="bsi_measurement_interval">Measurement Interval</string>
+    <string name="bsi_measurement_interval_input_hint">Time (mm)</string>
     <string name="bsi_analog_sensor_2">Analog 2</string>
     <string name="bsi_pulse_sensor">Pulse</string>
-    <string-array name="bsi_spinner_options">
-        <item>Active</item>
-        <item>Not Active</item>
-    </string-array>
+    <string name="bsi_flood_alarm_trigger_pulse">Flood Alarm trigger rate</string>
+    <string name="bsi_flood_alarm_shutoff_rate">Flood Alarm shut-off rate</string>
+    <string name="bsi_flood_alarm_rate_hint">Pules Per Minute (ppm)</string>
 
     <!-- Debug Fragment Strings -->
     <string name="debug_fragment_title">Debug your Device</string>
