@@ -10,7 +10,7 @@
         android:id="@+id/setup_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/setup_fragment_title"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -79,11 +79,10 @@
     <ListView
         android:id="@+id/bsis_in_network_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="300dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bsi_friendly_name" />
@@ -94,7 +93,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/setup_submit_changes"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/local_listener_setup"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bsis_in_network_list" />
+
+    <Button
+        android:id="@+id/local_listener_setup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/setup_local_listener_setup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/submit_chnages"
         app:layout_constraintTop_toBottomOf="@+id/bsis_in_network_list" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -26,6 +26,7 @@
     <string name="setup_submit_changes">Submit Changes</string>
     <string name="setup_mac_address_hint">MAC AA:BB:CC:DD:EE:FF</string>
     <string name="setup_friendly_name_hint">Friendly Name</string>
+    <string name="setup_local_listener_setup">Local Listener Config</string>
 
     <!-- BSI Fragment Strings -->
     <string name="bsi_fragment_title">BSI Setup for:</string>
