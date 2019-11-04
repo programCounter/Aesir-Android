@@ -52,10 +52,14 @@ class SetupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //Setup interface between UI elements and MainActivity
         bsis_in_network_list.adapter = mInterface.setupListViewDataMover()
 
         add_item_to_network.setOnClickListener {
             mInterface.onAddDevicesPressed()
+        }
+        submit_chnages.setOnClickListener {
+            mInterface.onSubmitChanges()
         }
 
         bsis_in_network_list.onItemClickListener = mInterface.onBSIListPressed()
@@ -81,5 +85,6 @@ class SetupFragment : Fragment() {
         fun setupListViewDataMover(): BSIListAdapter
         fun onAddDevicesPressed()
         fun onBSIListPressed(): AdapterView.OnItemClickListener?
+        fun onSubmitChanges()
     }
 }

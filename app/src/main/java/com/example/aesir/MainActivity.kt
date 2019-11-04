@@ -17,6 +17,8 @@ TODO List:
     the app crashes when results are fed to UI element that no longer exists [NULL POINTER].
     5. Come up with code naming standard and update/adhere to it.
     6. Fix the layout for SetupFragment. The list interfere with the text input fields.
+    7. Tx data to local listener
+    8. Read data back from local listener in debug fragment
  */
 
 //
@@ -42,6 +44,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.*
+import kotlin.collections.ArrayList
 
 //
 // Start of MainActivity
@@ -300,6 +304,16 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
         return this@MainActivity
     }
 
+    override fun onSubmitChanges() {
+        if (bluetoothGatt?.device != null){
+            val serviceID: UUID = UUID.fromString("0e281400-6801-4160-a7d6-a3b252dc43a1")
+            val charID: UUID = UUID.fromString("0e281401-6801-4160-a7d6-a3b252dc43a1")
+            val service = bluetoothGatt!!.getService(serviceID)
+            val character = service.getCharacteristic(charID)
+            mBTLEAdapter.txLocalListener(bluetoothGatt!!, character)
+        }
+    }
+
 
     //
     // Debug Functions
@@ -336,19 +350,18 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
             //"Notification"
         }
 
-        override fun onCharacteristicRead(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic,
-            status: Int
-        ) {
+        override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+            super.onCharacteristicWrite(gatt, characteristic, status)
+
+            //Confirm that the characteristic was actually changed
+            tools.showToast("Characteristic was written!")
+        }
+
+        override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
 
         }
 
-        override fun onDescriptorRead(
-            gatt: BluetoothGatt,
-            descriptor: BluetoothGattDescriptor,
-            status: Int
-        ) {
+        override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
 
         }
     }
@@ -359,5 +372,16 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
 // MainActivity Data Classes
 //
 data class BSIEntry(val mac: String) {
+    //BSI
     var friendlyName: String = ""
+
+    //Sensors
+    var A1pod: Int = 0
+    var A1measureint: Int = 0
+
+    var A2pod: Int = 0
+    var A2measureint: Int = 0
+
+    var Palarmtrigger: Int = 0
+    var Palarmshutoff: Int = 0
 }

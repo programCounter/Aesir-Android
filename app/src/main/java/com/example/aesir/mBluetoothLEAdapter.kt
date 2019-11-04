@@ -14,13 +14,18 @@ package com.example.aesir
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Intent
+import android.icu.util.Calendar
 import android.widget.ListView
 import androidx.core.app.ActivityCompat.startActivityForResult
+import java.text.DateFormat
+import java.util.*
 
 
 class BluetoothLEAdapter(passedActivity: Activity) {
@@ -73,6 +78,23 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         //Stop scan if any
         mScanner?.stopScan(mCallback)
         mScanner?.flushPendingScanResults(mCallback)
+    }
+
+    fun txLocalListener(gatt: BluetoothGatt, BSIcharacter: BluetoothGattCharacteristic) {
+        //Runs on submit button push
+
+        //Need the GATT object
+        //Need BSI object(s)
+        //Write to character
+        //Get time after write BSI object(s)
+        //Style 3 is SHORT e.g. 3:30pm HH:MM:AM/PM
+        val LocalLIstenerTime: String = DateFormat.getTimeInstance(3).format(Date())
+        //Write to time character
+
+        //TEST CODE (PUSH INT TO CHARACTER)
+        val toPush: Int = 101
+        BSIcharacter.setValue(toPush, 18, 0)
+        gatt.writeCharacteristic(BSIcharacter)
     }
 
 
