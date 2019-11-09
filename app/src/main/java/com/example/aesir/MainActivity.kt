@@ -1,7 +1,7 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-10-15
+Date Updated: 2019-11-08
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -19,6 +19,8 @@ TODO List:
     6. Fix the layout for SetupFragment. The list interfere with the text input fields.
     7. Tx data to local listener
     8. Read data back from local listener in debug fragment
+    9. Fix Bug: App sometimes wont connect to device until NRFconnect is used before. Punchthrough
+    wont work either.
  */
 
 //
@@ -32,6 +34,8 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.nfc.Tag
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -74,8 +78,8 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     //
     private val requestAccessFineLocation: Int = 0
     private val requestEnableBt: Int = 1
-    private val mBluetoothAdapter = mBTLEAdapter.getBluetooth()
     private val fragmentManager = supportFragmentManager
+    private var mBluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
     private var bluetoothServices: MutableList<BluetoothGattService?>? = null
@@ -110,6 +114,8 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
         super.onCreate(savedInstanceState)
         this.supportActionBar?.hide()
         setContentView(R.layout.activity_main)
+
+        mBluetoothAdapter = mBTLEAdapter.getBluetooth()
 
         //val fragmentManager = supportFragmentManager
 
@@ -156,6 +162,21 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     // Shut anything down that should NOT be running in the background (e.g. a bluetooth connection)
     override fun onDestroy() {
         super.onDestroy()
+        bluetoothGatt?.disconnect()
+        bluetoothGatt?.close()
+        tools.showToast("GATT Connection closed.")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        bluetoothGatt?.disconnect()
+        bluetoothGatt?.close()
+        tools.showToast("GATT Connection closed.")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        bluetoothGatt?.disconnect()
         bluetoothGatt?.close()
         tools.showToast("GATT Connection closed.")
     }
@@ -207,9 +228,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     // Runs when the view is created. Only populate list if there
     // are items to populate it with.
     override fun discoverListViewDataMover(): MutableList<ScanResult>? {
-        //if (mBTLEAdapter.scanResults.isNullOrEmpty()) {
-            //.adapter = DeviceListAdapter(this, mBTLEAdapter.scanResults)
-        //}
         return mBTLEAdapter.scanResults
     }
 
@@ -227,7 +245,8 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     // This initiates a GATT connection to the selected device.
     override fun onListPressed(): AdapterView.OnItemClickListener? {
         return AdapterView.OnItemClickListener { parent, _, position, _ ->
-            //Disconnect and stop scan before attempting a new connection just in case
+            mBTLEAdapter.stopScanningBluetoothDevices()
+
             if (bluetoothGatt != null) {
                 bluetoothGatt?.disconnect()
                 bluetoothGatt?.close()
@@ -235,13 +254,10 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
 
             val clickedItem = parent.getItemAtPosition(position) as ScanResult
             val name = clickedItem.device.address
-            tools.showToast("You clicked: $name")
+            tools.showToast("Connecting to: $name")
 
-            val handler = Handler()
-            handler.postDelayed({
-                clickedItem.device.createBond()
-                bluetoothGatt = clickedItem.device.connectGatt(this, false, mGattCallback, BluetoothDevice.TRANSPORT_LE)
-            }, 500)
+            // CONNECTION NOT WORKING. HAVE TO USE nRF Connect to make it work
+            bluetoothGatt = clickedItem.device.connectGatt(applicationContext, true, mGattCallback, BluetoothDevice.TRANSPORT_LE)
         }
     }
 
@@ -334,10 +350,14 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     inner class GattCallback : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
-
             //If we connected to the GATT server find services on device
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gatt.discoverServices()
+            }
+            else if (status == BluetoothGatt.STATE_DISCONNECTED) {
+                bluetoothGatt?.close()
+                bluetoothGatt = null
+                tools.showToast("I got here and closed the connection")
             }
         }
 
