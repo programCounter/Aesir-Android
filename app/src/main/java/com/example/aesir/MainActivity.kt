@@ -1,26 +1,24 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-11-08
+Date Updated: 2019-11-14
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
-Logic for MainActivity in app Aesir is contained in this file.
+Logic for MainActivity in app Aesir is contained in this file and any linking methods or objects.
  */
 
 /*
 TODO List:
-    1. Fix bug: If BT is off, the app will crash upon launch.
     2. Retain fragment state when user re-navigates to it. [IN PROGRESS]
-    3. Add fragment for BSI specific configuration tasks.
+    3. Add fragment for BSI specific configuration tasks. [IN PROGRESS]
     4. Fix Bug: If doing an async task and the user navigates off the page it was initiated on,
     the app crashes when results are fed to UI element that no longer exists [NULL POINTER].
     5. Come up with code naming standard and update/adhere to it.
-    6. Fix the layout for SetupFragment. The list interfere with the text input fields.
-    7. Tx data to local listener
-    8. Read data back from local listener in debug fragment
+    7. Tx data to device [In Progress]
+    8. Read data back from device in debug fragment [In Progress]
     9. Fix Bug: App sometimes wont connect to device until NRFconnect is used before. Punchthrough
-    wont work either.
+    wont work either. [In Progress]
  */
 
 //
@@ -34,14 +32,10 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.nfc.Tag
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.view.MenuItem
 import android.widget.AdapterView
-import android.widget.EditText
 import android.widget.ListView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -49,28 +43,23 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
-import kotlin.collections.ArrayList
 
 //
 // Start of MainActivity
 //
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIFragment.BSI, DebugFragment.DebugListener, SetupFragment.Setup {
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSISetupFragment.BSI, DebugFragment.DebugListener, LLSetupFragment.Setup {
     //
     // Used classes
     //
     val tools = Tools(this)
     private var mBTLEAdapter = BluetoothLEAdapter(this)
-    private val mGattCallback = GattCallback()
+    private var mGattCallback = GattCallback()
     private val discoverFrag: Fragment = DiscoverDevicesFragment()
-    private val setupFrag: Fragment = SetupFragment()
-    private val bsiFrag: Fragment = BSIFragment()
+    private val noConnectedDeviceFrag: Fragment = NoDeviceConnectedFragment()
+    private val setupFrag: Fragment = LLSetupFragment()
+    private val bsiFrag: Fragment = BSISetupFragment()
     private val debugFrag: Fragment = DebugFragment()
     private val infoFrag: Fragment = InfoFragment()
-
-
-    //
-    // Public (Default) variables and values
-    //
 
 
     //
@@ -83,8 +72,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
     private var bluetoothServices: MutableList<BluetoothGattService?>? = null
-    private var bsiList: MutableList<BSIEntry>? = ArrayList()
-    private var bsiListSelection = BSIEntry("")
+    //private var bsiList: MutableList<BSIEntry>? = ArrayList()
 
 
     //
@@ -94,6 +82,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     // a responsive UI
     override fun onStart() {
         super.onStart()
+
 
         //Check for permissions right as the app starts
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
@@ -132,8 +121,9 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
                         return@OnNavigationItemSelectedListener true
                     }
 
+                    //Apply new logic for deciding what setup page to navigate to here
                     R.id.navigation_setup -> {
-                        changeFragment(fragmentManager, setupFrag, menuItem, 0)
+                        changeFragment(fragmentManager, noConnectedDeviceFrag, menuItem, 0)
                         return@OnNavigationItemSelectedListener true
                     }
 
@@ -245,7 +235,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     // This initiates a GATT connection to the selected device.
     override fun onListPressed(): AdapterView.OnItemClickListener? {
         return AdapterView.OnItemClickListener { parent, _, position, _ ->
-            mBTLEAdapter.stopScanningBluetoothDevices()
 
             if (bluetoothGatt != null) {
                 bluetoothGatt?.disconnect()
@@ -253,11 +242,12 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
             }
 
             val clickedItem = parent.getItemAtPosition(position) as ScanResult
-            val name = clickedItem.device.address
-            tools.showToast("Connecting to: $name")
+            //val device = clickedItem.device
+            val address = clickedItem.device.address
+            tools.showToast("Connecting to: $address")
 
             // CONNECTION NOT WORKING. HAVE TO USE nRF Connect to make it work
-            bluetoothGatt = clickedItem.device.connectGatt(applicationContext, true, mGattCallback, BluetoothDevice.TRANSPORT_LE)
+            bluetoothGatt = clickedItem.device.connectGatt(applicationContext, false, mGattCallback, BluetoothDevice.TRANSPORT_LE)
         }
     }
 
@@ -266,10 +256,14 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
     // Setup Functions
     //
     // Runs when the view is created.
-    override fun setupListViewDataMover(): BSIListAdapter {
-        return BSIListAdapter(this, bsiList)
-    }
+    //override fun setupListViewDataMover(): BSIListAdapter {
+    //    return BSIListAdapter(this, bsiList)
+    //}
 
+    //override fun onAddDevicesPressed() {
+    //    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    //}
+    /*
     // Runs when Add Device is pressed.
     override fun onAddDevicesPressed() {
         // Find the editable fields in the fragments view
@@ -297,20 +291,22 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
         friendEntry.text = null
     }
 
-    override fun onBSIListPressed(): AdapterView.OnItemClickListener? {
-        return AdapterView.OnItemClickListener {parent, _, position, _ ->
-            bsiListSelection = parent.getItemAtPosition(position) as BSIEntry
-            changeFragment(fragmentManager, bsiFrag, null, 0)
-        }
-    }
+     */
+
+    //override fun onBSIListPressed(): AdapterView.OnItemClickListener? {
+    //    return AdapterView.OnItemClickListener {parent, _, position, _ ->
+    //        bsiListSelection = parent.getItemAtPosition(position) as BSIEntry
+    //        changeFragment(fragmentManager, bsiFrag, null, 0)
+    //    }
+    //}
 
 
     //
     // BSI Functions
     //
-    override fun bsiObjectMover(): BSIEntry {
-        return bsiListSelection
-    }
+    //override fun bsiObjectMover(): BSIEntry {
+    //    return bsiListSelection
+    //}
 
 
     //
@@ -354,6 +350,9 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 gatt.discoverServices()
             }
+            else if (status == BluetoothGatt.STATE_CONNECTING) {
+                tools.showToast("Connecting I am")
+            }
             else if (status == BluetoothGatt.STATE_DISCONNECTED) {
                 bluetoothGatt?.close()
                 bluetoothGatt = null
@@ -385,23 +384,4 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIF
 
         }
     }
-}
-
-
-//
-// MainActivity Data Classes
-//
-data class BSIEntry(val mac: String) {
-    //BSI
-    var friendlyName: String = ""
-
-    //Sensors
-    var A1pod: Int = 0
-    var A1measureint: Int = 0
-
-    var A2pod: Int = 0
-    var A2measureint: Int = 0
-
-    var Palarmtrigger: Int = 0
-    var Palarmshutoff: Int = 0
 }

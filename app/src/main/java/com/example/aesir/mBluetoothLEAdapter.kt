@@ -1,7 +1,7 @@
 /*
 File Name: mBluetoothLEAdapter.kt
 Author: Riley Larche
-Date Updated: 2019-11-09
+Date Updated: 2019-11-12
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -27,7 +27,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
     //Private variables and values
     private val activity = passedActivity
-    private val reportDelay: Long = 100
+    private val reportDelay: Long = 500
     private val mCallback = MCallBack()
 
 
@@ -63,6 +63,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
         // Create search settings object
         val mSettings = ScanSettings.Builder().
+            setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).
             setReportDelay(reportDelay).
             build()
 

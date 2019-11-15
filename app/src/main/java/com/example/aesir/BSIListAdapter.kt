@@ -71,8 +71,8 @@ class BSIListAdapter(context: Context, private val dataSource: MutableList<BSIEn
 
         val bsi = getItem(position)
 
-        macAddress.text = bsi.mac
-        friendlyName.text = bsi.friendlyName
+        //macAddress.text = bsi.mac
+        //friendlyName.text = bsi.friendlyName
 
         return view
     }

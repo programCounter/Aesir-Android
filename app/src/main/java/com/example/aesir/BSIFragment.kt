@@ -1,7 +1,7 @@
 /*
 File Name: BSIFragment.kt
 Author: Riley Larche
-Date Updated: 2019-11-04
+Date Updated: 2019-11-14
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -30,7 +30,7 @@ import androidx.fragment.app.Fragment
 //
 // Setup Fragment Class
 //
-class BSIFragment : Fragment(), AdapterView.OnItemSelectedListener {
+class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
     //
     // Private VAL or VAR
     //
@@ -76,16 +76,20 @@ class BSIFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val context = mInterface.bsiFragmentContextMover()
 
         // Get the selected BSI
-        val bsi = mInterface.bsiObjectMover()
+        //val device = mInterface.bsiObjectMover()
 
         // Set UI elements for the selected BSI
         val title = view.findViewById<TextView>(R.id.setup_bsi_title)
-        if (bsi.friendlyName == null) {
-            title.text = bsi.mac
+        /*
+        if (device.name == null) {
+            title.text = device.name
         }
         else {
-            title.text = bsi.friendlyName
+            title.text = "New BSI"
         }
+
+         */
+        title.text = "New BSI"
 
         // Set adapter for spinner
         a1spinner = view.findViewById(R.id.bsi_analog_1_spinner)
@@ -207,6 +211,25 @@ class BSIFragment : Fragment(), AdapterView.OnItemSelectedListener {
     //
     interface BSI {
         fun bsiFragmentContextMover(): Context
-        fun bsiObjectMover(): BSIEntry
+        //fun bsiObjectMover(): BSIEntry
     }
+}
+
+
+//
+// Data Classes
+//
+data class BSIObject(val name: String) {
+    //BSI
+    //var dateTime
+
+    //Sensors
+    var A1pod: Int = 0
+    var A1measureint: Int = 0
+
+    var A2pod: Int = 0
+    var A2measureint: Int = 0
+
+    var Palarmtrigger: Int = 0
+    var Palarmshutoff: Int = 0
 }

@@ -10,7 +10,7 @@
         android:id="@+id/debug_page_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/debug_fragment_title"
         android:textSize="30sp"
         android:textStyle="bold"

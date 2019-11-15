@@ -48,7 +48,7 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/discovery_fragment_title"
         android:textSize="30sp"
         android:textStyle="bold"
