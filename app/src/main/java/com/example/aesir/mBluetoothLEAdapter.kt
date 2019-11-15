@@ -1,7 +1,7 @@
 /*
 File Name: mBluetoothLEAdapter.kt
 Author: Riley Larche
-Date Updated: 2019-11-12
+Date Updated: 2019-11-15
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -16,6 +16,7 @@ import android.app.Activity
 import android.bluetooth.*
 import android.bluetooth.le.*
 import android.content.Context
+import android.widget.Button
 import android.widget.ListView
 
 
@@ -76,12 +77,10 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         stopScanningBluetoothDevices()
 
         //Start new scanner
-        tools.showToast("Scanning...")
-        scanner?.startScan(null, mSettings, mCallback)
+        scanner?.startScan(scannerFilter, mSettings, mCallback)
     }
 
     fun stopScanningBluetoothDevices() {
-        tools.showToast("Stopped Scanning")
         scanner?.stopScan(mCallback)
         scanner?.flushPendingScanResults(mCallback)
     }
@@ -110,7 +109,6 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             stopScanningBluetoothDevices()
-            tools.showToast("Single Result Found!")
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -123,7 +121,10 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
             stopScanningBluetoothDevices()
-            tools.showToast("Batch Results Found!")
+
+            val button = activity.findViewById<Button>(R.id.search)
+            button.text = "Search"
+
             scanResults = results
             val mAdapter = DeviceListAdapter(activity, scanResults)
             val deviceList = activity.findViewById<ListView>(R.id.device_list)

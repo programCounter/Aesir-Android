@@ -1,7 +1,7 @@
 /*
 File Name: Tools.kt
 Author: Riley Larche
-Date Updated: 2019-09-27
+Date Updated: 2019-11-15
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -16,8 +16,10 @@ import android.content.Context
 import android.widget.Toast
 
 
-class Tools(passedContext: Context) {
+class Tools(passedContext: Context?) {
     //Public (Default) variables and values
+    val DISCONNECTED: Int = 0
+    val CONNECTED: Int = 1
 
 
     //Private variables and values
@@ -30,7 +32,9 @@ class Tools(passedContext: Context) {
     //Functions
     fun showToast(text: String){
         //Shows message through system.
-        val toast = Toast.makeText(context.applicationContext, text, Toast.LENGTH_SHORT)
-        toast.show()
+        if (context != null) {
+            val toast = Toast.makeText(context.applicationContext, text, Toast.LENGTH_SHORT)
+            toast.show()
+        }
     }
 }

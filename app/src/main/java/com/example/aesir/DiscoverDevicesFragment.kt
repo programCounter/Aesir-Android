@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.discover_devices_fragment.*
 
 class DiscoverDevicesFragment : Fragment() {
+    val tools = Tools(null)
     private lateinit var mInterface: Discover
 
     override fun onCreateView(
@@ -46,7 +47,7 @@ class DiscoverDevicesFragment : Fragment() {
         }
 
         search.setOnClickListener {
-            mInterface.onButtonPressed()
+            setButtonText(true)
         }
 
         device_list.onItemClickListener = mInterface.onListPressed()
@@ -63,11 +64,42 @@ class DiscoverDevicesFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        // Restore what text should be shown on the button
+        setButtonText(false)
+    }
+
+    private fun setButtonText(click: Boolean) {
+        val connSatus = mInterface.updateConnectionStatus()
+        // Already connected, button now disconnects
+        if (connSatus == tools.CONNECTED && click) {
+            mInterface.onButtonDisconnect()
+            search.text = "Search"
+        }
+        // Already connected, no change
+        else if (connSatus == tools.CONNECTED) {
+            search.text = "Disconnect"
+        }
+        // No device connected, button searches for devices
+        else if (connSatus == tools.DISCONNECTED && click) {
+            mInterface.onButtonSearch()
+            search.text = "Searching..."
+        }
+        // Disconnected, no change
+        else if (connSatus == tools.DISCONNECTED) {
+            search.text = "Search"
+        }
+    }
+
     // Container Activity must implement this interface
     interface Discover {
         fun discoverListViewDataMover(): MutableList<ScanResult>?
         fun discoverContextMover(): Context
-        fun onButtonPressed()
+        fun onButtonSearch()
+        fun onButtonDisconnect()
+        fun updateConnectionStatus(): Int
         fun onListPressed(): AdapterView.OnItemClickListener?
     }
 }

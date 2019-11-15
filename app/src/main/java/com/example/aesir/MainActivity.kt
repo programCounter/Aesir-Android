@@ -1,7 +1,7 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-11-14
+Date Updated: 2019-11-15
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -32,16 +32,22 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.MenuItem
 import android.widget.AdapterView
+import android.widget.Button
 import android.widget.ListView
+import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.android.synthetic.main.discover_devices_fragment.*
 import java.util.*
 
 //
@@ -123,7 +129,14 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
                     //Apply new logic for deciding what setup page to navigate to here
                     R.id.navigation_setup -> {
-                        changeFragment(fragmentManager, noConnectedDeviceFrag, menuItem, 0)
+                        // See if a device is connected. If not, show the no connection fragment.
+                        // If a device is connected, determine if it is a BSI or Local Listener
+                        if (getConnectionState() == null) {
+                            changeFragment(fragmentManager, noConnectedDeviceFrag, menuItem, 0)
+                        }
+                        else {
+                            changeFragment(fragmentManager, setupFrag, menuItem, 0)
+                        }
                         return@OnNavigationItemSelectedListener true
                     }
 
@@ -152,23 +165,12 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     // Shut anything down that should NOT be running in the background (e.g. a bluetooth connection)
     override fun onDestroy() {
         super.onDestroy()
-        bluetoothGatt?.disconnect()
-        bluetoothGatt?.close()
-        tools.showToast("GATT Connection closed.")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        bluetoothGatt?.disconnect()
-        bluetoothGatt?.close()
-        tools.showToast("GATT Connection closed.")
+        disconnect()
     }
 
     override fun onStop() {
         super.onStop()
-        bluetoothGatt?.disconnect()
-        bluetoothGatt?.close()
-        tools.showToast("GATT Connection closed.")
+        disconnect()
     }
 
     // Runs when MainActivity returns to focus (e.g. a system dialogue box closes with a result)
@@ -211,6 +213,21 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         }
     }
 
+    private fun getConnectionState(): Int {
+        if (bluetoothGatt?.device != null) {
+            return tools.CONNECTED
+        }
+        else {
+            return tools.DISCONNECTED
+        }
+    }
+
+    private fun disconnect() {
+        bluetoothGatt?.disconnect()
+        bluetoothGatt?.close()
+        bluetoothGatt = null
+    }
+
 
     //
     // DiscoverDevices Functions
@@ -226,9 +243,19 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     }
 
     // Runs when the Search button is pressed.
-    override fun onButtonPressed() {
-        tools.showToast("Searching for Devices...")
+    override fun updateConnectionStatus(): Int {
+        return getConnectionState()
+    }
+
+    // Runs when the Search button is pressed.
+    override fun onButtonSearch() {
         mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
+        search.text = "Searching..."
+    }
+
+    // Runs when the Search button is pressed.
+    override fun onButtonDisconnect() {
+        disconnect()
     }
 
     // Runs when an item in the Device List is pressed.
@@ -244,9 +271,12 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             val clickedItem = parent.getItemAtPosition(position) as ScanResult
             //val device = clickedItem.device
             val address = clickedItem.device.address
-            tools.showToast("Connecting to: $address")
 
             // CONNECTION NOT WORKING. HAVE TO USE nRF Connect to make it work
+            Handler(Looper.getMainLooper()).post {
+                val button = findViewById<Button>(R.id.search)
+                button.text = "Connecting..."
+            }
             bluetoothGatt = clickedItem.device.connectGatt(applicationContext, false, mGattCallback, BluetoothDevice.TRANSPORT_LE)
         }
     }
@@ -348,15 +378,13 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             super.onConnectionStateChange(gatt, status, newState)
             //If we connected to the GATT server find services on device
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Handler(Looper.getMainLooper()).post {
+                    val button = findViewById<Button>(R.id.search)
+                    if (button != null) {
+                        button.text = "Disconnect"
+                    }
+                }
                 gatt.discoverServices()
-            }
-            else if (status == BluetoothGatt.STATE_CONNECTING) {
-                tools.showToast("Connecting I am")
-            }
-            else if (status == BluetoothGatt.STATE_DISCONNECTED) {
-                bluetoothGatt?.close()
-                bluetoothGatt = null
-                tools.showToast("I got here and closed the connection")
             }
         }
 

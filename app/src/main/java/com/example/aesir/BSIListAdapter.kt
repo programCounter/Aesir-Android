@@ -1,4 +1,5 @@
 /*
+/*
 File Name: BSIListAdapter.kt
 Author: Riley Larche
 Date Updated: 2019-10-17
@@ -85,3 +86,5 @@ class BSIListAdapter(context: Context, private val dataSource: MutableList<BSIEn
         lateinit var subtitleTextView: TextView
     }
 }
+
+ */

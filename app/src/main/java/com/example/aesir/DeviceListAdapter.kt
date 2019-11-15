@@ -1,7 +1,7 @@
 /*
 File Name: DeciveListAdapter.kt
 Author: Riley Larche
-Date Updated: 2019-10-17
+Date Updated: 2019-11-15
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -68,6 +68,8 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
 
         //Populate fields with data
         val deviceBt = getItem(position) as ScanResult
+
+        // Determine device type here
 
         if (deviceBt.scanRecord?.deviceName == null) {
             deviceNameTextView.text = "Unknown Device"
