@@ -38,6 +38,10 @@
         <item>Not Active</item>
         <item>Active</item>
     </string-array>
+    <string name="bsi_settings_header"><b><u>BSI Settings:</u></b></string>
+    <string name="bsi_tx_interval">Transmission Interval (hours)</string>
+    <string name="bsi_tx_interval_hint">Time (HH)</string>
+    <string name="sensor_settings_header"><b><u>Sensor Settings:</u></b></string>
     <string name="bsi_power_on_delay">Power On Delay (seconds)</string>
     <string name="bsi_power_on_delay_input_hint">Time (ss)</string>
     <string name="bsi_measurement_interval">Measurement Interval</string>

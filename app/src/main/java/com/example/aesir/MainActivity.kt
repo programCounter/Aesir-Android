@@ -18,7 +18,7 @@ TODO List:
     7. Tx data to device [In Progress]
     8. Read data back from device in debug fragment [In Progress]
     9. Fix Bug: App sometimes wont connect to device until NRFconnect is used before. Punchthrough
-    wont work either. [In Progress]
+    wont work either. [In Progress] [POSTPONED]
  */
 
 //
@@ -131,17 +131,22 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                     R.id.navigation_setup -> {
                         // See if a device is connected. If not, show the no connection fragment.
                         // If a device is connected, determine if it is a BSI or Local Listener
-                        if (getConnectionState() == null) {
+                        if (getConnectionState() == tools.DISCONNECTED) {
                             changeFragment(fragmentManager, noConnectedDeviceFrag, menuItem, 0)
                         }
                         else {
-                            changeFragment(fragmentManager, setupFrag, menuItem, 0)
+                            changeFragment(fragmentManager, bsiFrag, menuItem, 0)
                         }
                         return@OnNavigationItemSelectedListener true
                     }
 
                     R.id.navigation_debug -> {
-                        changeFragment(fragmentManager, debugFrag, menuItem, 0)
+                        if (getConnectionState() == tools.DISCONNECTED){
+                            changeFragment(fragmentManager, noConnectedDeviceFrag, menuItem, 0)
+                        }
+                        else {
+                            changeFragment(fragmentManager, debugFrag, menuItem, 0)
+                        }
                         return@OnNavigationItemSelectedListener true
                     }
 
@@ -340,10 +345,19 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
 
     //
-    // Setup Functions
+    // BSI Setup Functions
     //
     override fun bsiFragmentContextMover(): Context {
         return this@MainActivity
+    }
+
+    override fun bsiNameMover(): String {
+        if (bluetoothGatt?.device != null) {
+            return bluetoothGatt!!.device!!.name
+        }
+        else {
+            return "New BSI"
+        }
     }
 
     override fun onSubmitChanges() {

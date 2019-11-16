@@ -75,21 +75,9 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Get the Activity context
         val context = mInterface.bsiFragmentContextMover()
 
-        // Get the selected BSI
-        //val device = mInterface.bsiObjectMover()
-
         // Set UI elements for the selected BSI
         val title = view.findViewById<TextView>(R.id.setup_bsi_title)
-        /*
-        if (device.name == null) {
-            title.text = device.name
-        }
-        else {
-            title.text = "New BSI"
-        }
-
-         */
-        title.text = "New BSI"
+        title.text = mInterface.bsiNameMover()
 
         // Set adapter for spinner
         a1spinner = view.findViewById(R.id.bsi_analog_1_spinner)
@@ -211,7 +199,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
     //
     interface BSI {
         fun bsiFragmentContextMover(): Context
-        //fun bsiObjectMover(): BSIEntry
+        fun bsiNameMover(): String
     }
 }
 
@@ -224,12 +212,15 @@ data class BSIObject(val name: String) {
     //var dateTime
 
     //Sensors
+    var A1Enable: Int = 0
     var A1pod: Int = 0
     var A1measureint: Int = 0
 
+    var A2Enable: Int = 0
     var A2pod: Int = 0
     var A2measureint: Int = 0
 
+    var PEnable: Int = 0
     var Palarmtrigger: Int = 0
     var Palarmshutoff: Int = 0
 }

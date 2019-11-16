@@ -16,20 +16,30 @@ import android.app.Activity
 import android.bluetooth.*
 import android.bluetooth.le.*
 import android.content.Context
+import android.os.Parcel
+import android.os.ParcelUuid
 import android.widget.Button
 import android.widget.ListView
+import java.util.*
 
 
 class BluetoothLEAdapter(passedActivity: Activity) {
+    //
     //Public (Default) variables and values
-    private var scanner: BluetoothLeScanner? = null
+    //
+    val bsiSeriveUUID: ParcelUuid = ParcelUuid.fromString("0e28c1400-6801-4160-a7d6-a3b252dc43a1")
+    val bsiServiceUUIDMask: ParcelUuid = ParcelUuid.fromString("000001111-0000-0000-0000-000000000000")
+    //val LocalListenerServiceUUID: UUID = UUID.fromString("")
     var scanResults: MutableList<ScanResult>? = null
 
 
+    //
     //Private variables and values
+    //
     private val activity = passedActivity
     private val reportDelay: Long = 500
     private val mCallback = MCallBack()
+    private var scanner: BluetoothLeScanner? = null
 
 
 
@@ -69,7 +79,8 @@ class BluetoothLEAdapter(passedActivity: Activity) {
             build()
 
         // Create a scanning filter
-        val mFilter = ScanFilter.Builder().setDeviceName("AEsir ADC Test").build()
+        //val mFilter = ScanFilter.Builder().setDeviceName("AEsir ADC Test").build()
+        val mFilter = ScanFilter.Builder().setServiceUuid(bsiSeriveUUID, bsiServiceUUIDMask).build()
         val scannerFilter = arrayListOf<ScanFilter>()
         scannerFilter.add(mFilter)
 
