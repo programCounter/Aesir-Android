@@ -24,7 +24,8 @@
 
         <activity
             android:windowSoftInputMode="adjustPan"
-            android:name=".MainActivity">
+            android:name=".MainActivity"
+            android:theme="@style/splash_theme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

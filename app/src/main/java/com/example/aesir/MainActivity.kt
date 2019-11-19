@@ -33,11 +33,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.MenuItem
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.Button
 import android.widget.ListView
@@ -106,17 +108,18 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
     // Runs when the view is created. Do setup for items in the view here.
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Replace Splash Screen with app theme with a delay
+        // MUST be run BEFORE super.onCreate()
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+
         this.supportActionBar?.hide()
         setContentView(R.layout.activity_main)
 
         mBluetoothAdapter = mBTLEAdapter.getBluetooth()
 
-        //val fragmentManager = supportFragmentManager
-
-        //OnClick handlers for Navigation Bar
+        // OnClick handlers for Navigation Bar
         val navBar = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-
         //What to do, when an item in the NavBar is clicked
         val itemSelectedListener =
             BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
