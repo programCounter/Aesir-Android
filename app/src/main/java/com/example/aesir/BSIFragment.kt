@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.bsi_fragment.*
 
 
 //
@@ -134,6 +135,26 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
         showHide(a1ui, false)
         showHide(a2ui, false)
         showHide(pui, false)
+
+        // Set button click listener
+        setup_bsi_submit.setOnClickListener {
+            setup_bsi_submit.text = "Submitting Configuration..."
+
+            val bsi = BSIObject("REPLACE ME")
+
+            bsi.txInterval = 0
+            bsi.a1Enable = false
+            bsi.a1measureint = 0
+            bsi.a1pod = 0
+            bsi.a2Enable = false
+            bsi.a2measureint = 0
+            bsi.a2pod = 0
+            bsi.pEnable = false
+            bsi.pAlarmtrigger = 0
+            bsi.pAlarmshutoff = 0
+
+            mInterface.commitConfig(bsi)
+        }
     }
 
     // Runs when the view is attached (becomes one with) MainActivity
@@ -200,6 +221,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
     interface BSI {
         fun bsiFragmentContextMover(): Context
         fun bsiNameMover(): String
+        fun commitConfig(bsi: BSIObject)
     }
 }
 
@@ -210,17 +232,18 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 data class BSIObject(val name: String) {
     //BSI
     //var dateTime
+    var txInterval: Byte = 0
 
     //Sensors
-    var A1Enable: Int = 0
-    var A1pod: Int = 0
-    var A1measureint: Int = 0
+    var a1Enable: Boolean = false
+    var a1pod: Short = 0
+    var a1measureint: Short = 0
 
-    var A2Enable: Int = 0
-    var A2pod: Int = 0
-    var A2measureint: Int = 0
+    var a2Enable: Boolean = false
+    var a2pod: Short = 0
+    var a2measureint: Short = 0
 
-    var PEnable: Int = 0
-    var Palarmtrigger: Int = 0
-    var Palarmshutoff: Int = 0
+    var pEnable: Boolean = false
+    var pAlarmtrigger: Short = 0
+    var pAlarmshutoff: Short = 0
 }

@@ -49,17 +49,6 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
     //Functions
     fun getBluetooth(): BluetoothAdapter {
-        /*
-        val mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
-        //If Bluetooth is available on the device but not enabled, a dialog will open for the user to enable Bluetooth
-        mBluetoothAdapter?.takeIf { !it.isEnabled }?.apply {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(MainActivity(), enableBtIntent, requestEnable, null)
-        }
-         */
-
-        //New test bluetooth code
         val mBluetoothAdapter: BluetoothAdapter by lazy(LazyThreadSafetyMode.NONE) {
             val bluetoothManager = activity.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
             bluetoothManager.adapter
@@ -96,7 +85,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         scanner?.flushPendingScanResults(mCallback)
     }
 
-    fun txLocalListener(gatt: BluetoothGatt, BSIcharacter: BluetoothGattCharacteristic) {
+    fun tx(gatt: BluetoothGatt, character: List<BluetoothGattCharacteristic>, data: BSIObject) {
         //Runs on submit button push
 
         //Need the GATT object
@@ -110,8 +99,18 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         //TEST CODE (PUSH INT TO CHARACTER)
         //val toPush: Int = 101
         //BSIcharacter.setValue(toPush, 18, 0)
-        BSIcharacter.setValue("TEST DATA")
-        gatt.writeCharacteristic(BSIcharacter)
+
+        val dataIterable: List<String> = listOf(data.txInterval.toString(), data.a1Enable.toString(),
+            data.a1pod.toString(), data.a1measureint.toString(),
+            data.a2Enable.toString(), data.a2pod.toString(),
+            data.a2measureint.toString(), data.pEnable.toString(),
+            data.pAlarmtrigger.toString(), data.pAlarmshutoff.toString())
+
+        for (x in 0..character.count()) {
+            character[x].setValue(dataIterable[x])
+            gatt.writeCharacteristic(character[x])
+            // need delay?
+        }
     }
 
 

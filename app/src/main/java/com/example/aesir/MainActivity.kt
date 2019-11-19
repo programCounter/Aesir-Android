@@ -363,14 +363,24 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         }
     }
 
-    override fun onSubmitChanges() {
-        if (bluetoothGatt?.device != null){
-            val serviceID: UUID = UUID.fromString("0e281400-6801-4160-a7d6-a3b252dc43a1")
-            val charID: UUID = UUID.fromString("0e281401-6801-4160-a7d6-a3b252dc43a1")
-            val service = bluetoothGatt!!.getService(serviceID)
-            val character = service.getCharacteristic(charID)
-            mBTLEAdapter.txLocalListener(bluetoothGatt!!, character)
+    override fun commitConfig(bsi: BSIObject) {
+        if (bluetoothGatt != null) {
+            // get service to send data to
+            val configService = bluetoothGatt!!.getService(mBTLEAdapter.bsiSeriveUUID.uuid)
+
+            // grab list of characteristics that the device has for sending configuration
+            val configCharacteristic: List<BluetoothGattCharacteristic> =
+                listOf(configService.getCharacteristic())
+
+            mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, bsi)
         }
+        else {
+            tools.showToast("Error. No device connected!")
+        }
+    }
+
+    override fun onSubmitChanges() {
+        tools.showToast("Not sure how you got here...")
     }
 
 
