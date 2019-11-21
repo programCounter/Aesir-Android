@@ -64,11 +64,17 @@
 
     <!-- Info Fragment Strings -->
     <string name="info_fragment_title">About our Project</string>
-    <string name="info_fragment_paragraph">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-        Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+    <string name="info_fragment_paragraph">RioT Technology Corp commissioned us to design and produce a prototype
+        Bluetooth data transmission solution. Our product will replace the cables which currently connect environmental
+        sensors to data logging devices.\n\nOur project consists of three parts: a device to collect/transmit the data, a
+        device to receive the data, and an Android mobile application to configure the devices and the network. The
+        transmitting device, we call the <b>BSI</b>, or <b>Bluetooth Sensor Interface</b>. The BSI is designed to take data from sensors,
+        attached by the end user, and transmit the measurements over Bluetooth to the receiver. The receiver is called the <b>Local Listener</b>.
+        The data received by the Local Listener is stored on a SD memory card. Using the Android application in conjunction with the Local Listener,
+        a large network of BSI’s can be configured that will be immune to many of the negative effects experienced by wired systems.
+</string>
     <string name="riot_logo_description">{Aesir and RioT Logo}</string>
+    <string name="project_members_heading">Project Members</string>
 
     <!-- Strings for DeviceScanActivity -->
     <string name="unknown_device">Unknown Device</string>
