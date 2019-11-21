@@ -1,14 +1,17 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <!--
         <item name="android:windowBackground">#303030</item>
+        -->
     </style>
 
+    <!-- Splash Screen Theme -->
     <style name="splash_theme" parent="AppTheme">
         <item name="android:windowBackground">@drawable/splash</item>
     </style>

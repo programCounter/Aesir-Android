@@ -369,10 +369,10 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             val configService = bluetoothGatt!!.getService(mBTLEAdapter.bsiSeriveUUID.uuid)
 
             // grab list of characteristics that the device has for sending configuration
-            val configCharacteristic: List<BluetoothGattCharacteristic> =
-                listOf(configService.getCharacteristic())
+            //val configCharacteristic: List<BluetoothGattCharacteristic> =
+            //    listOf(configService.getCharacteristic())
 
-            mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, bsi)
+            //mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, bsi)
         }
         else {
             tools.showToast("Error. No device connected!")
