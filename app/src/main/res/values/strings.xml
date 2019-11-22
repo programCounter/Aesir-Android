@@ -13,6 +13,9 @@
     <!-- Discover Fragment Strings -->
     <string name="discovery_fragment_title">Find your Device</string>
     <string name="search_button_text">Search</string>
+    <string name="search_button_alt_text_1">Disconnect</string>
+    <string name="search_button_alt_text_2">Connecting…</string>
+    <string name="search_button_alt_text_3">Searching…</string>
     <string name="search_list_description">Press the button to search nearby Bluetooth Devices.
     They will appear in the list below. Click on a list item to connect to the device.</string>
     <string name="image_description_string">Device Icon Here</string>
@@ -24,6 +27,8 @@
         To add more devices to the network, simply keep adding them below.</string>
     <string name="setup_add_items_to_network_button">Add Device</string>
     <string name="setup_submit_changes">Submit Changes to Device</string>
+    <string name="setup_submit_changes_alt_text_1">Submitting Configuration…</string>
+    <string name="setup_submit_changes_alt_text_2">Changes Submitted</string>
     <string name="setup_mac_address_hint">MAC AA:BB:CC:DD:EE:FF</string>
     <string name="setup_friendly_name_hint">Friendly Name</string>
     <string name="setup_local_listener_setup">Local Listener Config</string>
@@ -33,6 +38,7 @@
     <string name="bsi_setup_description">To enable and setup a sensor, click the dropdown
     and select "Active". When a sensor is active you may set custom parameters for them.
     If no custom parameters are set, defaults will be used.</string>
+    <string name="bsi_name">BSI Name</string>
     <string name="bsi_analog_sensor_1">Analog 1</string>
     <string-array name="bsi_spinner_options">
         <item>Not Active</item>

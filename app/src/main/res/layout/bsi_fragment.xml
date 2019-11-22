@@ -252,10 +252,10 @@
                 android:id="@+id/bsi_tx_interval"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/bsi_tx_interval"
-                app:layout_constraintStart_toStartOf="@+id/bsi_settings_header"
-                app:layout_constraintTop_toBottomOf="@+id/bsi_settings_header" />
+                app:layout_constraintStart_toStartOf="@+id/bsi_name"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_name" />
 
             <TextView
                 android:id="@+id/sensor_setting_header"
@@ -265,6 +265,27 @@
                 android:text="@string/sensor_settings_header"
                 app:layout_constraintStart_toStartOf="@+id/bsi_tx_interval"
                 app:layout_constraintTop_toBottomOf="@+id/bsi_tx_interval" />
+
+            <TextView
+                android:id="@+id/bsi_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/bsi_name"
+                app:layout_constraintStart_toStartOf="@+id/bsi_settings_header"
+                app:layout_constraintTop_toBottomOf="@+id/bsi_settings_header" />
+
+            <EditText
+                android:id="@+id/bsi_name_input"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="@string/placeholder_text"
+                android:textSize="14sp"
+                app:layout_constraintBaseline_toBaselineOf="@+id/bsi_name"
+                app:layout_constraintStart_toEndOf="@+id/bsi_name" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

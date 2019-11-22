@@ -1,7 +1,7 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-11-15
+Date Updated: 2019-11-21
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -32,25 +32,21 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.MenuItem
-import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.Button
 import android.widget.ListView
-import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.android.synthetic.main.bsi_fragment.*
 import kotlinx.android.synthetic.main.discover_devices_fragment.*
-import java.util.*
 
 //
 // Start of MainActivity
@@ -64,7 +60,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     private var mGattCallback = GattCallback()
     private val discoverFrag: Fragment = DiscoverDevicesFragment()
     private val noConnectedDeviceFrag: Fragment = NoDeviceConnectedFragment()
-    private val setupFrag: Fragment = LLSetupFragment()
+    //private val setupFrag: Fragment = LLSetupFragment()
     private val bsiFrag: Fragment = BSISetupFragment()
     private val debugFrag: Fragment = DebugFragment()
     private val infoFrag: Fragment = InfoFragment()
@@ -116,6 +112,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         this.supportActionBar?.hide()
         setContentView(R.layout.activity_main)
 
+        // Get the devices bluetooth adapter
         mBluetoothAdapter = mBTLEAdapter.getBluetooth()
 
         // OnClick handlers for Navigation Bar
@@ -258,7 +255,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     // Runs when the Search button is pressed.
     override fun onButtonSearch() {
         mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
-        search.text = "Searching..."
+        search.text = R.string.search_button_alt_text_3.toString()
     }
 
     // Runs when the Search button is pressed.
@@ -277,13 +274,11 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             }
 
             val clickedItem = parent.getItemAtPosition(position) as ScanResult
-            //val device = clickedItem.device
-            val address = clickedItem.device.address
 
             // CONNECTION NOT WORKING. HAVE TO USE nRF Connect to make it work
             Handler(Looper.getMainLooper()).post {
                 val button = findViewById<Button>(R.id.search)
-                button.text = "Connecting..."
+                button.text = R.string.search_button_alt_text_2.toString()
             }
             bluetoothGatt = clickedItem.device.connectGatt(applicationContext, false, mGattCallback, BluetoothDevice.TRANSPORT_LE)
         }
@@ -291,60 +286,18 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
 
     //
-    // Setup Functions
+    // Local Listener Setup Functions [NOT IMPLEMENTED]
     //
     // Runs when the view is created.
-    //override fun setupListViewDataMover(): BSIListAdapter {
-    //    return BSIListAdapter(this, bsiList)
-    //}
-
-    //override fun onAddDevicesPressed() {
-    //    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    //}
     /*
-    // Runs when Add Device is pressed.
-    override fun onAddDevicesPressed() {
-        // Find the editable fields in the fragments view
-        // and retrieve the current typed string. Must convert to string
-        // because the field contains an editable string.
-        val macEntry = findViewById<EditText>(R.id.bsi_address_entry)
-        val friendEntry = findViewById<EditText>(R.id.bsi_friendly_name)
-
-        // Use data class to store data for passing to List Adapter. Check for null.
-        if (macEntry.text.toString() != null && friendEntry.text.toString() != null) {
-            var mBSI = BSIEntry(macEntry.text.toString())
-            mBSI.friendlyName = friendEntry.text.toString()
-
-            bsiList?.add(mBSI)
-        }
-
-        if (!bsiList.isNullOrEmpty()) {
-            val mAdapter = BSIListAdapter(this, bsiList)
-            val bsiListView = findViewById<ListView>(R.id.bsis_in_network_list)
-            bsiListView.adapter = mAdapter
-        }
-
-        // Reset the typed text after the list has been updated.
-        macEntry.text = null
-        friendEntry.text = null
+    override fun setupListViewDataMover(): BSIListAdapter {
+        return BSIListAdapter(this, bsiList)
     }
 
+    override fun onAddDevicesPressed() {
+    //    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
      */
-
-    //override fun onBSIListPressed(): AdapterView.OnItemClickListener? {
-    //    return AdapterView.OnItemClickListener {parent, _, position, _ ->
-    //        bsiListSelection = parent.getItemAtPosition(position) as BSIEntry
-    //        changeFragment(fragmentManager, bsiFrag, null, 0)
-    //    }
-    //}
-
-
-    //
-    // BSI Functions
-    //
-    //override fun bsiObjectMover(): BSIEntry {
-    //    return bsiListSelection
-    //}
 
 
     //
@@ -355,8 +308,9 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     }
 
     override fun bsiNameMover(): String {
-        if (bluetoothGatt?.device != null) {
-            return bluetoothGatt!!.device!!.name
+        val name = bluetoothGatt?.device?.name
+        if (name != null) {
+            return name
         }
         else {
             return "New BSI"
@@ -366,13 +320,19 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     override fun commitConfig(bsi: BSIObject) {
         if (bluetoothGatt != null) {
             // get service to send data to
-            val configService = bluetoothGatt!!.getService(mBTLEAdapter.bsiSeriveUUID.uuid)
+            val configService = bluetoothGatt!!.getService(mBTLEAdapter.bsiServiceUUID.uuid)
 
             // grab list of characteristics that the device has for sending configuration
-            //val configCharacteristic: List<BluetoothGattCharacteristic> =
-            //    listOf(configService.getCharacteristic())
+            val configCharacteristic: List<BluetoothGattCharacteristic> =
+                listOf(configService.getCharacteristic(mBTLEAdapter.uploadInterval),
+                    configService.getCharacteristic(), configService.getCharacteristic(mBTLEAdapter.s2MeasureInterval),
+                    configService.getCharacteristic(), configService.getCharacteristic(mBTLEAdapter.s3MeasureInterval),
+                    configService.getCharacteristic(), configService.getCharacteristic(),
+                    configService.getCharacteristic(mBTLEAdapter.sensorConfig))
 
-            //mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, bsi)
+            // Send the configuration to the remote device
+            mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, bsi)
+            // Update name displayed on page (since the user can change it)
         }
         else {
             tools.showToast("Error. No device connected!")
@@ -403,12 +363,13 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     inner class GattCallback : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
-            //If we connected to the GATT server find services on device
+            // If we connected to the GATT server find services on device
+            // Change button text back MUST BE DONE ON UI THREAD
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Handler(Looper.getMainLooper()).post {
                     val button = findViewById<Button>(R.id.search)
                     if (button != null) {
-                        button.text = "Disconnect"
+                        button.text = R.string.search_button_alt_text_1.toString()
                     }
                 }
                 gatt.discoverServices()
@@ -426,16 +387,16 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
         override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
             super.onCharacteristicWrite(gatt, characteristic, status)
-
             //Confirm that the characteristic was actually changed
             tools.showToast("Characteristic was written!")
+
+            Handler(Looper.getMainLooper()).post {
+                val submitButton = findViewById<Button>(R.id.setup_bsi_submit)
+                submitButton.text = R.string.setup_submit_changes_alt_text_2.toString()
+            }
         }
 
         override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
-
-        }
-
-        override fun onDescriptorRead(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
 
         }
     }

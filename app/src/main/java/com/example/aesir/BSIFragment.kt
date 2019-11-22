@@ -20,10 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.bsi_fragment.*
 
@@ -75,6 +72,10 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         // Get the Activity context
         val context = mInterface.bsiFragmentContextMover()
+
+        // Prepoulate edit text with name of connected device
+        val nameInput = view.findViewById<EditText>(R.id.bsi_name_input)
+        nameInput.setText(mInterface.bsiNameMover())
 
         // Set UI elements for the selected BSI
         val title = view.findViewById<TextView>(R.id.setup_bsi_title)
@@ -138,18 +139,27 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         // Set button click listener
         setup_bsi_submit.setOnClickListener {
-            setup_bsi_submit.text = "Submitting Configuration..."
+            setup_bsi_submit.text = R.string.setup_submit_changes_alt_text_1.toString()
 
-            val bsi = BSIObject("REPLACE ME")
+            // Collect the data from the setup page and place
+            // into a bsi object to be sent
+            val bsi = BSIObject("")
 
             bsi.txInterval = 0
-            bsi.a1Enable = false
+            // Safe call and grab state of spinner
+            if (a1spinner != null) {
+                bsi.a1Enable = a1spinner!!.id
+            }
             bsi.a1measureint = 0
             bsi.a1pod = 0
-            bsi.a2Enable = false
+            if (a2spinner != null) {
+                bsi.a2Enable = a2spinner!!.id
+            }
             bsi.a2measureint = 0
             bsi.a2pod = 0
-            bsi.pEnable = false
+            if (pspinner != null) {
+                bsi.pEnable = pspinner!!.id
+            }
             bsi.pAlarmtrigger = 0
             bsi.pAlarmshutoff = 0
 
@@ -235,15 +245,15 @@ data class BSIObject(val name: String) {
     var txInterval: Byte = 0
 
     //Sensors
-    var a1Enable: Boolean = false
+    var a1Enable: Int = 0
     var a1pod: Short = 0
     var a1measureint: Short = 0
 
-    var a2Enable: Boolean = false
+    var a2Enable: Int = 0
     var a2pod: Short = 0
     var a2measureint: Short = 0
 
-    var pEnable: Boolean = false
+    var pEnable: Int = 0
     var pAlarmtrigger: Short = 0
     var pAlarmshutoff: Short = 0
 }
