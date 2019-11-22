@@ -1,7 +1,7 @@
 /*
 File Name: DiscoverDevicesFragment.kt
 Author: Riley Larche
-Date Updated: 2019-10-07
+Date Updated: 2019-11-22
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -10,6 +10,9 @@ Debug fragment is contained in this file.
  */
 
 
+//
+//Packages and Imports
+//
 package com.example.aesir
 
 import android.content.Context
@@ -20,7 +23,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.debug_fragment.*
 
+
+//
+// Start of Class
+//
 class DebugFragment : Fragment() {
+    //
+    // Private variables and values
+    //
     private lateinit var listener: DebugListener
 
     override fun onCreateView(

@@ -242,18 +242,18 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 data class BSIObject(val name: String) {
     //BSI
     //var dateTime
-    var txInterval: Byte = 0
+    var txInterval: Int = 0
 
     //Sensors
     var a1Enable: Int = 0
-    var a1pod: Short = 0
-    var a1measureint: Short = 0
+    var a1pod: Int = 0
+    var a1measureint: Int = 0
 
     var a2Enable: Int = 0
-    var a2pod: Short = 0
-    var a2measureint: Short = 0
+    var a2pod: Int = 0
+    var a2measureint: Int = 0
 
     var pEnable: Int = 0
-    var pAlarmtrigger: Short = 0
-    var pAlarmshutoff: Short = 0
+    var pAlarmtrigger: Int = 0
+    var pAlarmshutoff: Int = 0
 }

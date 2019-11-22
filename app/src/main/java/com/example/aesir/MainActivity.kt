@@ -45,7 +45,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.android.synthetic.main.bsi_fragment.*
 import kotlinx.android.synthetic.main.discover_devices_fragment.*
 
 //
@@ -255,7 +254,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     // Runs when the Search button is pressed.
     override fun onButtonSearch() {
         mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
-        search.text = R.string.search_button_alt_text_3.toString()
+        search.text = getString(R.string.search_button_alt_text_3)
     }
 
     // Runs when the Search button is pressed.
@@ -278,7 +277,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             // CONNECTION NOT WORKING. HAVE TO USE nRF Connect to make it work
             Handler(Looper.getMainLooper()).post {
                 val button = findViewById<Button>(R.id.search)
-                button.text = R.string.search_button_alt_text_2.toString()
+                button.text = getString(R.string.search_button_alt_text_2)
             }
             bluetoothGatt = clickedItem.device.connectGatt(applicationContext, false, mGattCallback, BluetoothDevice.TRANSPORT_LE)
         }
@@ -369,7 +368,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                 Handler(Looper.getMainLooper()).post {
                     val button = findViewById<Button>(R.id.search)
                     if (button != null) {
-                        button.text = R.string.search_button_alt_text_1.toString()
+                        button.text = getString(R.string.search_button_alt_text_1)
                     }
                 }
                 gatt.discoverServices()

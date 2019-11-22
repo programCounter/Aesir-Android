@@ -18,6 +18,8 @@ import android.app.Activity
 import android.bluetooth.*
 import android.bluetooth.le.*
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelUuid
 import android.widget.Button
 import android.widget.ListView
@@ -51,8 +53,8 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     // Characteristic UUIDs
     val s2MeasureInterval: UUID = UUID.fromString(baseBuuid + "1401" + baseAuuid)
     val s3MeasureInterval: UUID = UUID.fromString(baseBuuid + "1402" + baseAuuid)
-    val dtAlarmOn: UUID = UUID.fromString(baseBuuid + "1403" + baseAuuid)
-    val dtAlarmOff: UUID = UUID.fromString(baseBuuid + "1404" + baseAuuid)
+    val dtAlarmOn: UUID = UUID.fromString(baseBuuid + "1403" + baseAuuid) // Pulse Alarm on (time between x)
+    val dtAlarmOff: UUID = UUID.fromString(baseBuuid + "1404" + baseAuuid) // Pulse Alarm off (time between x)
     val dmAlarmS2On: UUID = UUID.fromString(baseBuuid + "1405" + baseAuuid)
     val dmAlarmS2Off: UUID = UUID.fromString(baseBuuid + "1406" + baseAuuid)
     val dmAlarmS3On: UUID = UUID.fromString(baseBuuid + "1407" + baseAuuid)
@@ -124,21 +126,26 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
         // Create string "XXX" for which senors are active = 1 or
         // inactive = 0
-        val cfg: String =  data.pEnable.toString() + data.a1Enable.toString() +
-                data.a2Enable.toString()
+        val cfg: Int =  data.pEnable + data.a1Enable +
+                data.a2Enable
 
         // Convert the BSI Object into a iterable object
-        val dataIterable: List<String> = listOf(data.txInterval.toString(),
-            data.a1pod.toString(), data.a1measureint.toString(),
-             data.a2pod.toString(), data.a2measureint.toString(),
-            data.pAlarmtrigger.toString(), data.pAlarmshutoff.toString(), cfg)
+        val dataIterable: List<Int> = listOf(data.txInterval,
+            data.a1pod, data.a1measureint,
+             data.a2pod, data.a2measureint,
+            data.pAlarmtrigger, data.pAlarmshutoff, cfg)
 
         // Iterate and send data
         for (x in 0..character.count()) {
-            character[x].setValue(dataIterable[x])
+            character[x].setValue(dataIterable[x], 0, 0)
             gatt.writeCharacteristic(character[x]) // Do the push to the remote device
             // need delay?
         }
+
+        // Send Friendly Name
+        // Replace 'x' with index of friendly name
+        character[x].setValue(data.name)
+        gatt.writeCharacteristic(character[x])
     }
 
 
@@ -147,6 +154,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             stopScanningBluetoothDevices()
+            tools.showToast("Single Result Found")
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -160,8 +168,10 @@ class BluetoothLEAdapter(passedActivity: Activity) {
             super.onBatchScanResults(results)
             stopScanningBluetoothDevices()
 
-            val button = activity.findViewById<Button>(R.id.search)
-            button.text = R.string.search_button_text.toString()
+            Handler(Looper.getMainLooper()).post {
+                val button = activity.findViewById<Button>(R.id.search)
+                button.text = activity.getString(R.string.search_button_text)
+            }
 
             scanResults = results
             val mAdapter = DeviceListAdapter(activity, scanResults)
