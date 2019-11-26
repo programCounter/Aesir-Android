@@ -82,7 +82,26 @@
         a large network of BSI’s can be configured that will be immune to many of the negative effects experienced by wired systems.
 </string>
     <string name="riot_logo_description">{Aesir and RioT Logo}</string>
+    <string name="thanks">Thanks to:</string>
     <string name="project_members_heading">Project Members</string>
+    <string name="riley">Riley Larche</string>
+    <string name="riley_title">Android Developer</string>
+    <string name="riley_phone">(778) 679–9187</string>
+    <string name="riley_email">riley.larche@gmail.com</string>
+
+    <string name="will">Will Viala</string>
+    <string name="will_title">Lead Firmware Developer</string>
+    <string name="will_phone">(778) 679–9187</string>
+    <string name="will_email">riley.larche@gmail.com</string>
+
+    <string name="landon">Landon Brown</string>
+    <string name="landon_kyrel_title">Hardware/Firmware Developer</string>
+    <string name="landon_phone">(778) 679–9187</string>
+    <string name="landon_email">riley.larche@gmail.com</string>
+
+    <string name="kyrel">Kyrel Silva</string>
+    <string name="kyrel_phone">(778) 679–9187</string>
+    <string name="kyrel_email">riley.larche@gmail.com</string>
 
     <!-- Strings for DeviceScanActivity -->
     <string name="unknown_device">Unknown Device</string>
