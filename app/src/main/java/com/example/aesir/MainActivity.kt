@@ -1,7 +1,7 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-11-21
+Date Updated: 2019-11-25
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -10,15 +10,11 @@ Logic for MainActivity in app Aesir is contained in this file and any linking me
 
 /*
 TODO List:
-    2. Retain fragment state when user re-navigates to it. [IN PROGRESS]
-    3. Add fragment for BSI specific configuration tasks. [IN PROGRESS]
     4. Fix Bug: If doing an async task and the user navigates off the page it was initiated on,
     the app crashes when results are fed to UI element that no longer exists [NULL POINTER].
     5. Come up with code naming standard and update/adhere to it.
     7. Tx data to device [In Progress]
     8. Read data back from device in debug fragment [In Progress]
-    9. Fix Bug: App sometimes wont connect to device until NRFconnect is used before. Punchthrough
-    wont work either. [In Progress] [POSTPONED]
  */
 
 //
@@ -185,6 +181,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private fun displayPermissionStatus(permissionName: String, resultCode: Int) {
         if (resultCode == Activity.RESULT_OK) {
             tools.showToast("$permissionName granted.")
@@ -218,6 +215,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     }
 
     private fun getConnectionState(): Int {
+        @SuppressWarnings("SimplifiableIfStatement")
         if (bluetoothGatt?.device != null) {
             return tools.CONNECTED
         }
@@ -270,6 +268,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             if (bluetoothGatt != null) {
                 bluetoothGatt?.disconnect()
                 bluetoothGatt?.close()
+                bluetoothGatt = null
             }
 
             val clickedItem = parent.getItemAtPosition(position) as ScanResult
@@ -308,6 +307,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
     override fun bsiNameMover(): String {
         val name = bluetoothGatt?.device?.name
+        @SuppressWarnings("SimplifiableIfStatement")
         if (name != null) {
             return name
         }
@@ -318,19 +318,37 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
     override fun commitConfig(bsi: BSIObject) {
         if (bluetoothGatt != null) {
+            Handler(Looper.getMainLooper()).post {
+                val submitButton = findViewById<Button>(R.id.setup_bsi_submit)
+                submitButton.text = "Submitting..."
+            }
+
             // get service to send data to
             val configService = bluetoothGatt!!.getService(mBTLEAdapter.bsiServiceUUID.uuid)
 
             // grab list of characteristics that the device has for sending configuration
             val configCharacteristic: List<BluetoothGattCharacteristic> =
-                listOf(configService.getCharacteristic(mBTLEAdapter.uploadInterval),
-                    configService.getCharacteristic(), configService.getCharacteristic(mBTLEAdapter.s2MeasureInterval),
-                    configService.getCharacteristic(), configService.getCharacteristic(mBTLEAdapter.s3MeasureInterval),
-                    configService.getCharacteristic(), configService.getCharacteristic(),
-                    configService.getCharacteristic(mBTLEAdapter.sensorConfig))
+                listOf(configService.getCharacteristic(mBTLEAdapter.s2MeasureInterval),
+                    configService.getCharacteristic(mBTLEAdapter.s3MeasureInterval),
+                    configService.getCharacteristic(mBTLEAdapter.dtAlarmOn),
+                    configService.getCharacteristic(mBTLEAdapter.dtAlarmOff),
+                    configService.getCharacteristic(mBTLEAdapter.dmAlarmS2On),
+                    configService.getCharacteristic(mBTLEAdapter.dmAlarmS2Off),
+                    configService.getCharacteristic(mBTLEAdapter.dmAlarmS3On),
+                    configService.getCharacteristic(mBTLEAdapter.dmAlarmS3Off),
+                    configService.getCharacteristic(mBTLEAdapter.uploadSize),
+                    configService.getCharacteristic(mBTLEAdapter.sensorConfig),
+                    configService.getCharacteristic(mBTLEAdapter.uploadInterval),
+                    configService.getCharacteristic(mBTLEAdapter.podS2),
+                    configService.getCharacteristic(mBTLEAdapter.podS3))
+
+            val strConfigCharacteristic: List<BluetoothGattCharacteristic> =
+                listOf(configService.getCharacteristic(mBTLEAdapter.bsiName),
+                configService.getCharacteristic(mBTLEAdapter.bsiTime))
+
 
             // Send the configuration to the remote device
-            mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, bsi)
+            mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, strConfigCharacteristic, bsi)
             // Update name displayed on page (since the user can change it)
         }
         else {
@@ -386,12 +404,9 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
         override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
             super.onCharacteristicWrite(gatt, characteristic, status)
-            //Confirm that the characteristic was actually changed
-            tools.showToast("Characteristic was written!")
-
             Handler(Looper.getMainLooper()).post {
                 val submitButton = findViewById<Button>(R.id.setup_bsi_submit)
-                submitButton.text = R.string.setup_submit_changes_alt_text_2.toString()
+                submitButton.text = getString(R.string.setup_submit_changes)
             }
         }
 

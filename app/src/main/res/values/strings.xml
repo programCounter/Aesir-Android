@@ -47,6 +47,8 @@
     <string name="bsi_settings_header"><b><u>BSI Settings:</u></b></string>
     <string name="bsi_tx_interval">Transmission Interval (hours)</string>
     <string name="bsi_tx_interval_hint">Time (HH)</string>
+    <string name="bsi_upld_interval">Upload Size Interval</string>
+    <string name="bsi_upld_interval_input_hint">File size in Bytes (0-4096)</string>
     <string name="sensor_settings_header"><b><u>Sensor Settings:</u></b></string>
     <string name="bsi_power_on_delay">Power On Delay (seconds)</string>
     <string name="bsi_power_on_delay_input_hint">Time (ss)</string>

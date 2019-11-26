@@ -21,6 +21,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
+import android.util.Log
 import android.widget.Button
 import android.widget.ListView
 import java.util.*
@@ -37,8 +38,10 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     private val reportDelay: Long = 500
     private val mCallback = MCallBack()
     private var scanner: BluetoothLeScanner? = null
+    private val bsiNameCharIndex = 0
+    private val bsiTimeCharIndex = 1
     // Combine A then 140X then B to create UUID
-    private val baseBuuid: String = "0e28c"
+    private val baseBuuid: String = "0e28"
     private val baseAuuid: String = "-6801-4160-a7d6-a3b252dc43a1"
 
     // Shows which bits to test for (0 = ignore // 1 = must match)
@@ -61,9 +64,13 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     val dmAlarmS3Off: UUID = UUID.fromString(baseBuuid + "1408" + baseAuuid)
     val uploadSize: UUID = UUID.fromString(baseBuuid + "1409" + baseAuuid)
     val sensorConfig: UUID = UUID.fromString(baseBuuid + "1410" + baseAuuid)
-    val sesnorAddress: UUID = UUID.fromString(baseBuuid + "1411" + baseAuuid)
+    //val sesnorAddress: UUID = UUID.fromString(baseBuuid + "1411" + baseAuuid)
     val uploadInterval: UUID = UUID.fromString(baseBuuid + "1412" + baseAuuid)
-    val sensorData: UUID = UUID.fromString(baseBuuid + "1413" + baseAuuid)
+    val bsiName: UUID = UUID.fromString(baseBuuid + "1413" + baseAuuid)
+    val podS2: UUID = UUID.fromString(baseBuuid + "1414" + baseAuuid)
+    val podS3: UUID = UUID.fromString(baseBuuid + "1415" + baseAuuid)
+    val bsiTime: UUID = UUID.fromString(baseBuuid + "1416" + baseAuuid)
+
 
     var scanResults: MutableList<ScanResult>? = null
 
@@ -113,16 +120,8 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         scanner?.flushPendingScanResults(mCallback)
     }
 
-    fun tx(gatt: BluetoothGatt, character: List<BluetoothGattCharacteristic>, data: BSIObject) {
+    fun tx(gatt: BluetoothGatt, character: List<BluetoothGattCharacteristic>, strCharacter: List<BluetoothGattCharacteristic>, data: BSIObject) {
         //Runs on submit button push
-
-        //Need the GATT object
-        //Need BSI object(s)
-        //Write to character
-        //Get time after write BSI object(s)
-        //Style 3 is SHORT e.g. 3:30pm HH:MM:AM/PM
-        //val LocalListenerTime: String = DateFormat.getTimeInstance(3).format(Date())
-        //Write to time character
 
         // Create string "XXX" for which senors are active = 1 or
         // inactive = 0
@@ -130,22 +129,44 @@ class BluetoothLEAdapter(passedActivity: Activity) {
                 data.a2Enable
 
         // Convert the BSI Object into a iterable object
-        val dataIterable: List<Int> = listOf(data.txInterval,
-            data.a1pod, data.a1measureint,
-             data.a2pod, data.a2measureint,
-            data.pAlarmtrigger, data.pAlarmshutoff, cfg)
+        val dataIterable: List<Int> =
+            listOf(data.a1measureint,
+                data.a2measureint,
+                data.pAlarmtrigger,
+                data.pAlarmshutoff,
+                data.a1alarmON,
+                data.a1alarmOFF,
+                data.a2alarmON,
+                data.a2alarmOFF,
+                data.upldSize,
+                cfg,
+                data.txInterval,
+                data.a1pod,
+                data.a2pod)
 
         // Iterate and send data
-        for (x in 0..character.count()) {
-            character[x].setValue(dataIterable[x], 0, 0)
-            gatt.writeCharacteristic(character[x]) // Do the push to the remote device
-            // need delay?
+        for (x in 0..character.lastIndex) {
+            // Skip the name due to different type
+            if (x != 10) {
+                character[x].setValue(dataIterable[x], 17, 0)
+                gatt.writeCharacteristic(character[x]) // Do the push to the remote device
+                Thread.sleep(500)
+            }
         }
 
+        Thread.sleep(500)
+
         // Send Friendly Name
-        // Replace 'x' with index of friendly name
-        character[x].setValue(data.name)
-        gatt.writeCharacteristic(character[x])
+        strCharacter[0].setValue(data.name)
+        gatt.writeCharacteristic(strCharacter[0])
+
+        Thread.sleep(500)
+
+        // Get time UTC -> number in min. to send
+        // Send last
+        data.dateTime = (System.currentTimeMillis() / 60000).toInt()
+        strCharacter[1].setValue(data.dateTime, 20, 0)
+        gatt.writeCharacteristic(strCharacter[1])
     }
 
 

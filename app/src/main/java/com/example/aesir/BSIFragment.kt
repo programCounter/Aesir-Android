@@ -73,7 +73,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Get the Activity context
         val context = mInterface.bsiFragmentContextMover()
 
-        // Prepoulate edit text with name of connected device
+        // Prepopulate edit text with name of connected device
         val nameInput = view.findViewById<EditText>(R.id.bsi_name_input)
         nameInput.setText(mInterface.bsiNameMover())
 
@@ -123,11 +123,11 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
         a2ui = listOf(view.findViewById(R.id.bsi_power_on_delay_analog2),
             view.findViewById(R.id.bsi_measurement_interval_analog2),
             view.findViewById(R.id.bsi_power_on_delay_input_analog2),
-            view.findViewById(R.id.bsi_measurement_interval_input_analog2))
+            view.findViewById(R.id.bsi_alarm_shutoff_input_analog2))
         pui = listOf(view.findViewById(R.id.bsi_power_on_delay_pulse),
             view.findViewById(R.id.bsi_measurement_interval_pulse),
-            view.findViewById(R.id.bsi_power_on_delay_input_pulse),
-            view.findViewById(R.id.bsi_measurement_interval_input_pulse))
+            view.findViewById(R.id.bsi_alarm_trigger_input_pulse),
+            view.findViewById(R.id.bsi_alarm_shutoff_input_pulse))
 
         //Hide the UI elements by DEFAULT and select false in spinner
         analog1spinner.setSelection(0)
@@ -143,26 +143,51 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
             // Collect the data from the setup page and place
             // into a bsi object to be sent
-            val bsi = BSIObject("")
+            val bsi = BSIObject(bsi_name_input.text.toString())
+            try {
+                bsi.upldSize = Integer.parseInt(bsi_upld_interval_input.text.toString())
+                bsi.txInterval = Integer.parseInt(bsi_tx_interval_input.text.toString())
+            }
+            catch (e: NumberFormatException) {
 
-            bsi.txInterval = 0
+            }
             // Safe call and grab state of spinner
             if (a1spinner != null) {
                 bsi.a1Enable = a1spinner!!.id
+                try {
+                    bsi.a1measureint = Integer.parseInt(bsi_measurement_interval_input_analog1.text.toString())
+                    bsi.a1pod = Integer.parseInt(bsi_power_on_delay_input_analog1.text.toString())
+                    //bsi.a1alarmON = Integer.parseInt()
+                    //bsi.a1alarmOFF = Integer.parseInt()
+                }
+                catch (e: NumberFormatException) {
+
+                }
             }
-            bsi.a1measureint = 0
-            bsi.a1pod = 0
             if (a2spinner != null) {
                 bsi.a2Enable = a2spinner!!.id
+                try {
+                    bsi.a2measureint = Integer.parseInt(bsi_alarm_shutoff_input_analog2.text.toString())
+                    bsi.a2pod = Integer.parseInt(bsi_power_on_delay_input_analog2.text.toString())
+                    //bsi.a2alarmON = Integer.parseInt()
+                    //bsi.a2alarmOFF = Integer.parseInt()
+                }
+                catch (e: NumberFormatException) {
+
+                }
             }
-            bsi.a2measureint = 0
-            bsi.a2pod = 0
             if (pspinner != null) {
                 bsi.pEnable = pspinner!!.id
-            }
-            bsi.pAlarmtrigger = 0
-            bsi.pAlarmshutoff = 0
+                try {
+                    bsi.pAlarmtrigger = Integer.parseInt(bsi_alarm_trigger_input_pulse.text.toString())
+                    bsi.pAlarmshutoff = Integer.parseInt(bsi_alarm_shutoff_input_pulse.text.toString())
+                }
+                catch (e: NumberFormatException) {
 
+                }
+            }
+
+            // commit the changes
             mInterface.commitConfig(bsi)
         }
     }
@@ -241,17 +266,22 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 //
 data class BSIObject(val name: String) {
     //BSI
-    //var dateTime
+    var dateTime: Int = 0
     var txInterval: Int = 0
+    var upldSize: Int = 0
 
     //Sensors
     var a1Enable: Int = 0
     var a1pod: Int = 0
     var a1measureint: Int = 0
+    var a1alarmON: Int = 0
+    var a1alarmOFF: Int = 0
 
     var a2Enable: Int = 0
     var a2pod: Int = 0
     var a2measureint: Int = 0
+    var a2alarmON: Int = 0
+    var a2alarmOFF: Int = 0
 
     var pEnable: Int = 0
     var pAlarmtrigger: Int = 0
