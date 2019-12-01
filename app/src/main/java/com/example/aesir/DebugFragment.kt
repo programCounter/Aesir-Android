@@ -45,9 +45,8 @@ class DebugFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        list_services.setOnClickListener {
-            listener.debugDataMover()
-        }
+        // Gets and populates data into UI when done drawing
+        listener.debugDataMover()
     }
 
     override fun onAttach(context: Context?) {

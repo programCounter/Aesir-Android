@@ -21,9 +21,9 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
-import android.util.Log
 import android.widget.Button
 import android.widget.ListView
+import java.lang.NumberFormatException
 import java.util.*
 
 
@@ -38,8 +38,6 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     private val reportDelay: Long = 500
     private val mCallback = MCallBack()
     private var scanner: BluetoothLeScanner? = null
-    private val bsiNameCharIndex = 0
-    private val bsiTimeCharIndex = 1
     // Combine A then 140X then B to create UUID
     private val baseBuuid: String = "0e28"
     private val baseAuuid: String = "-6801-4160-a7d6-a3b252dc43a1"
@@ -65,11 +63,14 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     val uploadSize: UUID = UUID.fromString(baseBuuid + "1409" + baseAuuid)
     val sensorConfig: UUID = UUID.fromString(baseBuuid + "1410" + baseAuuid)
     //val sesnorAddress: UUID = UUID.fromString(baseBuuid + "1411" + baseAuuid)
-    val uploadInterval: UUID = UUID.fromString(baseBuuid + "1412" + baseAuuid)
+    //val uploadInterval: UUID = UUID.fromString(baseBuuid + "1412" + baseAuuid)
     val bsiName: UUID = UUID.fromString(baseBuuid + "1413" + baseAuuid)
     val podS2: UUID = UUID.fromString(baseBuuid + "1414" + baseAuuid)
     val podS3: UUID = UUID.fromString(baseBuuid + "1415" + baseAuuid)
     val bsiTime: UUID = UUID.fromString(baseBuuid + "1416" + baseAuuid)
+    val uuidList: MutableList<UUID> = mutableListOf(s2MeasureInterval, s3MeasureInterval,
+        dtAlarmOn, dtAlarmOff, dmAlarmS2On, dmAlarmS2Off, dmAlarmS3On, dmAlarmS3Off,
+        uploadSize, sensorConfig, bsiName, podS2, podS3)
 
 
     var scanResults: MutableList<ScanResult>? = null
@@ -169,17 +170,132 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         gatt.writeCharacteristic(strCharacter[1])
     }
 
+    fun rx(uuidsStr: MutableList<String>, valuesStr: MutableList<String>): BSIObject {
+        // MUST happen after discoveryServices
+
+        // Runs when the user navigates to the BSI setup page
+        // Finds current setup from the BSI for the population of UI
+
+
+
+/*
+        val uuidsStr: MutableList<String> = mutableListOf()
+        val valuesStr: MutableList<String> = mutableListOf()
+
+        // Iterate services
+        // For every characteristic find its value and build the BSI Object
+        services?.forEach { bluetoothGattService ->
+            when (bluetoothGattService?.uuid) {
+                bsiServiceUUID.uuid ->
+                    bluetoothGattService?.characteristics?.forEach {
+                        uuidsStr.add(it.uuid.toString())
+                        gatt?.readCharacteristic(it)
+                        /*
+                        if (it.getStringValue(0) != null) {
+                            valuesStr.add(it.getStringValue(0))
+                        }
+                        */
+                    }
+                // Add more here
+            }
+        }
+
+ */
+
+        val existingConfig = BSIObject("")
+
+        uuidsStr.forEachIndexed {index, element ->
+            when(element) {
+                s2MeasureInterval.toString() ->
+                    try {
+                        existingConfig.a1measureint = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                s3MeasureInterval.toString() ->
+                    try {
+                        existingConfig.a2measureint = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                dtAlarmOn.toString() ->
+                    try {
+                        existingConfig.pAlarmtrigger = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                dtAlarmOff.toString() ->
+                    try {
+                        existingConfig.pAlarmshutoff = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                /*
+                NOT IMPLEMENTED CONFIGURATION PARAMETERS
+                 */
+                //dmAlarmS2On.toString() ->
+                //dmAlarmS2Off.toString() ->
+                //dmAlarmS3On.toString() ->
+                //dmAlarmS3Off.toString() ->
+                uploadSize.toString() ->
+                    try {
+                        existingConfig.upldSize = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                sensorConfig.toString() ->
+                    try {
+                        existingConfig.sensorConfig = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                //uploadInterval.toString() ->
+                //    existingConfig.txInterval = valuesStr[index].toInt()
+                bsiName.toString() ->
+                    try {
+                        existingConfig.name = valuesStr[index]
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                podS2.toString() ->
+                    try {
+                        existingConfig.a1pod = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                podS3.toString() ->
+                    try {
+                        existingConfig.a2pod = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+            }
+        }
+        return existingConfig
+    }
+
 
     //Inner Classes
     inner class MCallBack: ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
+
             stopScanningBluetoothDevices()
             tools.showToast("Single Result Found")
         }
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
+
             stopScanningBluetoothDevices()
             tools.showToast("Error on Scan!")
             tools.showToast(errorCode.toString())
@@ -187,6 +303,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
+
             stopScanningBluetoothDevices()
 
             Handler(Looper.getMainLooper()).post {

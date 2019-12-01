@@ -1,7 +1,7 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-11-25
+Date Updated: 2019-12-01
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -42,6 +42,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.discover_devices_fragment.*
+import java.lang.NullPointerException
 
 //
 // Start of MainActivity
@@ -67,11 +68,17 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     private val requestAccessFineLocation: Int = 0
     private val requestEnableBt: Int = 1
     private val fragmentManager = supportFragmentManager
+    private val uuidsStr: MutableList<String> = mutableListOf()
+    private val characterNamesStr: MutableList<String> = mutableListOf()
+    private val valuesStr: MutableList<String> = mutableListOf()
+    private var mService: BluetoothGattService? = null
+    private var config = BSIObject("KILL ME")
     private var mBluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
     private var bluetoothServices: MutableList<BluetoothGattService?>? = null
     //private var bsiList: MutableList<BSIEntry>? = ArrayList()
+    private var readCount: Int = 0
 
 
     //
@@ -215,7 +222,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     }
 
     private fun getConnectionState(): Int {
-        @SuppressWarnings("SimplifiableIfStatement")
         if (bluetoothGatt?.device != null) {
             return tools.CONNECTED
         }
@@ -307,7 +313,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
     override fun bsiNameMover(): String {
         val name = bluetoothGatt?.device?.name
-        @SuppressWarnings("SimplifiableIfStatement")
         if (name != null) {
             return name
         }
@@ -316,11 +321,16 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         }
     }
 
+    // Runs when the page is being created
+    override fun findConfig(): BSIObject {
+        return config
+    }
+
     override fun commitConfig(bsi: BSIObject) {
         if (bluetoothGatt != null) {
             Handler(Looper.getMainLooper()).post {
                 val submitButton = findViewById<Button>(R.id.setup_bsi_submit)
-                submitButton.text = "Submitting..."
+                submitButton.text = getString(R.string.setup_submit_changes_alt_text_1)
             }
 
             // get service to send data to
@@ -338,7 +348,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                     configService.getCharacteristic(mBTLEAdapter.dmAlarmS3Off),
                     configService.getCharacteristic(mBTLEAdapter.uploadSize),
                     configService.getCharacteristic(mBTLEAdapter.sensorConfig),
-                    configService.getCharacteristic(mBTLEAdapter.uploadInterval),
+                    //configService.getCharacteristic(mBTLEAdapter.uploadInterval),
                     configService.getCharacteristic(mBTLEAdapter.podS2),
                     configService.getCharacteristic(mBTLEAdapter.podS3))
 
@@ -366,7 +376,28 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     //
     // Runs when the Populate button is pressed.
     override fun debugDataMover() {
-        val mAdapter = ServicesListAdapter(this, bluetoothServices)
+        // Creates a list of user readable names vs UUID strings
+        uuidsStr.forEach { s ->
+            when(s) {
+                mBTLEAdapter.s3MeasureInterval.toString() -> characterNamesStr.add("A2 Measurement Interval")
+                mBTLEAdapter.bsiName.toString() -> characterNamesStr.add("BSI Name")
+                mBTLEAdapter.bsiTime.toString() -> characterNamesStr.add("UTC Time (Seconds)")
+                mBTLEAdapter.dmAlarmS2Off.toString() -> characterNamesStr.add("A1 Alarm OFF Status")
+                mBTLEAdapter.dmAlarmS2On.toString() -> characterNamesStr.add("A1 Alarm ON Status")
+                mBTLEAdapter.dmAlarmS3Off.toString() -> characterNamesStr.add("A2 Alarm OFF Status")
+                mBTLEAdapter.dmAlarmS3On.toString() -> characterNamesStr.add("A2 Alarm ON Status")
+                mBTLEAdapter.dtAlarmOff.toString() -> characterNamesStr.add("Pulse Alarm OFF Status")
+                mBTLEAdapter.dtAlarmOn.toString() -> characterNamesStr.add("Pulse Alarm ON Status")
+                mBTLEAdapter.podS2.toString() -> characterNamesStr.add("Power ON Delay A1")
+                mBTLEAdapter.podS3.toString() -> characterNamesStr.add("Power OFF Delay A2")
+                mBTLEAdapter.s2MeasureInterval.toString() -> characterNamesStr.add("A1 Measurement Interval")
+                mBTLEAdapter.sensorConfig.toString() -> characterNamesStr.add("Senor Configuration")
+                mBTLEAdapter.uploadSize.toString() -> characterNamesStr.add("Upload Size")
+            }
+        }
+
+        // pass the two string lists to be adapted into basic listView
+        val mAdapter = CharacteristicListAdapter(this, characterNamesStr, valuesStr)
         val servicesList = findViewById<ListView>(R.id.debug_services_list)
         servicesList.adapter = mAdapter
     }
@@ -396,6 +427,13 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
             super.onServicesDiscovered(gatt, status)
             bluetoothServices = gatt?.services
+            mService = bluetoothGatt?.getService(mBTLEAdapter.bsiServiceUUID.uuid)
+            try {
+                bluetoothGatt?.readCharacteristic(mService?.getCharacteristic(mBTLEAdapter.uuidList[readCount]))
+            }
+            catch (e: NullPointerException) {
+
+            }
         }
 
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
@@ -411,7 +449,19 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         }
 
         override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
-
+            // Load this when we connect to the device
+            // This is where i pull config data from
+            uuidsStr.add(characteristic.uuid.toString())
+            valuesStr.add(characteristic.getStringValue(0))
+            // read the next value
+            readCount += 1
+            if (readCount <= 12) {
+                bluetoothGatt?.readCharacteristic(mService?.getCharacteristic(mBTLEAdapter.uuidList[readCount]))
+            }
+            else {
+                // break the cycle update the config with the lists
+                config = mBTLEAdapter.rx(uuidsStr, valuesStr)
+            }
         }
     }
 }

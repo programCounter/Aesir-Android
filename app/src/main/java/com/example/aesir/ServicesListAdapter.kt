@@ -1,6 +1,20 @@
+/*
+File Name: DiscoverDevicesFragment.kt
+Author: Riley Larche
+Date Updated: 2019-12-01
+Android Studio Version:3.5.1
+Tested on Android Version: 10 and 8
+
+Logic that pertains to the list adapter for the
+Debug fragment is contained in this file.
+ */
+
+
+//
+// Imports and Packages
+//
 package com.example.aesir
 
-import android.bluetooth.BluetoothGattService
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -8,20 +22,30 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-class ServicesListAdapter(context: Context, private val dataSource: MutableList<BluetoothGattService?>?): BaseAdapter() {
 
+//
+// Class
+//
+class CharacteristicListAdapter(context: Context, private val dataSource: MutableList<String>, private val dataSource2: MutableList<String>): BaseAdapter() {
+    //
+    // Private variables and values
+    //
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-    override fun getCount(): Int {
-        return dataSource!!.size
-    }
 
-    override fun getItem(position: Int): BluetoothGattService? {
-        return dataSource!![position]
+    //
+    // Functions
+    //
+    override fun getCount(): Int {
+        return dataSource.size
     }
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
+    }
+
+    override fun getItem(position: Int): Any {
+        return dataSource[position]
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -33,8 +57,8 @@ class ServicesListAdapter(context: Context, private val dataSource: MutableList<
             view = inflater.inflate(R.layout.list_services_bt, parent, false)
 
             holder = ViewHolder()
-            holder.titleTextView = view.findViewById(R.id.service_name) as TextView
-            holder.subtitleTextView = view.findViewById(R.id.service_uuid) as TextView
+            holder.titleTextView = view.findViewById(R.id.characteristic_name) as TextView
+            holder.subtitleTextView = view.findViewById(R.id.chracteristic_value) as TextView
 
             view.tag = holder
         }
@@ -43,17 +67,19 @@ class ServicesListAdapter(context: Context, private val dataSource: MutableList<
             holder = convertView.tag as ViewHolder
         }
 
-        val serviceName = holder.titleTextView
-        val serviceUUID = holder.subtitleTextView
+        val characterName = holder.titleTextView
+        val characterValue = holder.subtitleTextView
 
-        val service = getItem(position) as BluetoothGattService
-
-        serviceName.text = service.instanceId.toString()
-        serviceUUID.text = service.uuid.toString()
+        characterName.text = dataSource[position]
+        characterValue.text = dataSource2[position]
 
         return view
     }
 
+
+    //
+    // Local Classes
+    //
     private class ViewHolder {
         lateinit var titleTextView: TextView
         lateinit var subtitleTextView: TextView

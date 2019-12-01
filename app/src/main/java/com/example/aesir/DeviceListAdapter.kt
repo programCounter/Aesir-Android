@@ -1,7 +1,7 @@
 /*
 File Name: DeciveListAdapter.kt
 Author: Riley Larche
-Date Updated: 2019-11-15
+Date Updated: 2019-12-01
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -9,7 +9,9 @@ Class for data display inside ListView.
  */
 
 
-//Packages and Imports
+//
+// Packages and Imports
+//
 package com.example.aesir
 
 import android.bluetooth.le.ScanResult
@@ -22,12 +24,18 @@ import android.widget.ImageView
 import android.widget.TextView
 
 
+//
+// Class
+//
 class DeviceListAdapter(context: Context, private val dataSource: MutableList<ScanResult>?): BaseAdapter(){
-
-    //Setup? !!Look into Layout Inflater!!
+    //
+    // Private variables and values
+    //
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-    //Functions
+    //
+    // Functions
+    //
     override fun getCount(): Int {
         return dataSource!!.size
     }
@@ -84,6 +92,9 @@ class DeviceListAdapter(context: Context, private val dataSource: MutableList<Sc
     }
 
 
+    //
+    // Other Local Classes
+    //
     private class ViewHolder {
         lateinit var titleTextView: TextView
         lateinit var subtitleTextView: TextView

@@ -59,6 +59,7 @@
     <string name="bsi_flood_alarm_trigger_pulse">Flood Alarm trigger rate</string>
     <string name="bsi_flood_alarm_shutoff_rate">Flood Alarm shut-off rate</string>
     <string name="bsi_flood_alarm_rate_hint">Pules Per Minute (ppm)</string>
+    <string name="load_config">Loading Configuration</string>
 
     <!-- No Device Connected Setup Fragment -->
     <string name="no_device_connected_message">There does not seam to be a device
@@ -67,8 +68,12 @@
 
     <!-- Debug Fragment Strings -->
     <string name="debug_fragment_title">Debug your Device</string>
-    <string name="debug_services_list_title">List of Device Services:</string>
+    <string name="debug_fragment_paragraph">The following list is the returned values from your
+    BSI. Use this page and the subsequent values it returns to ensure that your device is setup
+    correctly and that it received the configuration as you expected.</string>
+    <string name="debug_services_list_title"><u>Characteristics and Values:</u></string>
     <string name="debug_characteristics_list_title">List of Device Characteristics</string>
+
 
     <!-- Info Fragment Strings -->
     <string name="info_fragment_title">About our Project</string>

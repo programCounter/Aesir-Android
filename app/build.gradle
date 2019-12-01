@@ -9,8 +9,8 @@ android {
         applicationId "com.example.aesir"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 31
-        versionName "PR.2019.11.26.12.05.AM"
+        versionCode 33
+        versionName "PR.2019.12.01.11.00.AM"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

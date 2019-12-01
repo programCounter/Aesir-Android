@@ -17,6 +17,7 @@ package com.example.aesir
 
 import android.content.Context
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -190,6 +191,49 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
             // commit the changes
             mInterface.commitConfig(bsi)
         }
+
+        // Pre-fill UI elements with config data from device
+        val existingConfig = mInterface.findConfig()
+        setup_bsi_submit.text = this.getText(R.string.load_config)
+
+        bsi_name_input.text = SpannableStringBuilder(existingConfig.name)
+        bsi_upld_interval_input.text = SpannableStringBuilder(existingConfig.upldSize.toString())
+        bsi_tx_interval_input.text = SpannableStringBuilder(existingConfig.txInterval.toString())
+
+        // Logic for deciding what spinners are true/false
+        when (existingConfig.sensorConfig) {
+            // P-A1-A2 (XXX)
+            1 -> {
+                showHide(a2ui, true)
+                analog2spinner.setSelection(1)
+            }
+            10 -> {
+                showHide(a1ui, true)
+                analog1spinner.setSelection(1)
+            }
+            11 -> {
+                showHide(a1ui, true)
+                showHide(a2ui, true)
+            }
+            100 -> {
+                showHide(pui, true)
+            }
+            101 -> {
+                showHide(pui, true)
+                showHide(a2ui, true)
+            }
+            110 -> {
+                showHide(pui, true)
+                showHide(a1ui, true)
+            }
+            111 -> {
+                showHide(a1ui, true)
+                showHide(a2ui, true)
+                showHide(pui, true)
+            }
+
+            // Populate the senor configuration fields
+        }
     }
 
     // Runs when the view is attached (becomes one with) MainActivity
@@ -256,6 +300,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
     interface BSI {
         fun bsiFragmentContextMover(): Context
         fun bsiNameMover(): String
+        fun findConfig(): BSIObject
         fun commitConfig(bsi: BSIObject)
     }
 }
@@ -264,11 +309,12 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 //
 // Data Classes
 //
-data class BSIObject(val name: String) {
+data class BSIObject(var name: String) {
     //BSI
     var dateTime: Int = 0
     var txInterval: Int = 0
     var upldSize: Int = 0
+    var sensorConfig: Int = 0
 
     //Sensors
     var a1Enable: Int = 0
