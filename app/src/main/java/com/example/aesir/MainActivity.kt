@@ -32,6 +32,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.MenuItem
 import android.widget.AdapterView
 import android.widget.Button
@@ -68,9 +69,10 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     private val requestAccessFineLocation: Int = 0
     private val requestEnableBt: Int = 1
     private val fragmentManager = supportFragmentManager
-    private val uuidsStr: MutableList<String> = mutableListOf()
-    private val characterNamesStr: MutableList<String> = mutableListOf()
-    private val valuesStr: MutableList<String> = mutableListOf()
+    private var uuidsStr: MutableList<String> = mutableListOf()
+    private var valuesStr: MutableList<String> = mutableListOf()
+    private var characterNamesStr: MutableList<String> = mutableListOf()
+    var sensorConfig: Int = 0
     private var mService: BluetoothGattService? = null
     private var config = BSIObject("KILL ME")
     private var mBluetoothAdapter: BluetoothAdapter? = null
@@ -376,6 +378,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     //
     // Runs when the Populate button is pressed.
     override fun debugDataMover() {
+        characterNamesStr = mutableListOf()
         // Creates a list of user readable names vs UUID strings
         uuidsStr.forEach { s ->
             when(s) {
@@ -391,13 +394,13 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                 mBTLEAdapter.podS2.toString() -> characterNamesStr.add("Power ON Delay A1")
                 mBTLEAdapter.podS3.toString() -> characterNamesStr.add("Power OFF Delay A2")
                 mBTLEAdapter.s2MeasureInterval.toString() -> characterNamesStr.add("A1 Measurement Interval")
-                mBTLEAdapter.sensorConfig.toString() -> characterNamesStr.add("Senor Configuration")
+                mBTLEAdapter.sensorConfig.toString() -> characterNamesStr.add("Sensor Configuration")
                 mBTLEAdapter.uploadSize.toString() -> characterNamesStr.add("Upload Size")
             }
         }
 
         // pass the two string lists to be adapted into basic listView
-        val mAdapter = CharacteristicListAdapter(this, characterNamesStr, valuesStr)
+        val mAdapter = CharacteristicListAdapter(this, characterNamesStr, valuesStr, sensorConfig)
         val servicesList = findViewById<ListView>(R.id.debug_services_list)
         servicesList.adapter = mAdapter
     }
@@ -420,6 +423,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                         button.text = getString(R.string.search_button_alt_text_1)
                     }
                 }
+                valuesStr = mutableListOf()
                 gatt.discoverServices()
             }
         }
@@ -452,7 +456,15 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             // Load this when we connect to the device
             // This is where i pull config data from
             uuidsStr.add(characteristic.uuid.toString())
-            valuesStr.add(characteristic.getStringValue(0))
+            if (characteristic.uuid.toString() == mBTLEAdapter.sensorConfig.toString()) {
+                // Need the sensor config as a integer
+                sensorConfig = characteristic.getIntValue(17, 0)
+                valuesStr.add("")
+            }
+            else {
+                valuesStr.add(characteristic.getStringValue(0))
+            }
+
             // read the next value
             readCount += 1
             if (readCount <= 12) {
@@ -460,7 +472,9 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             }
             else {
                 // break the cycle update the config with the lists
+                Log.d("Reading", "Done Reading!")
                 config = mBTLEAdapter.rx(uuidsStr, valuesStr)
+
             }
         }
     }

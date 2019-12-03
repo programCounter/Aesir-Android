@@ -49,6 +49,7 @@ class DebugFragment : Fragment() {
         listener.debugDataMover()
     }
 
+
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 
