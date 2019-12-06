@@ -26,7 +26,7 @@ import android.widget.TextView
 //
 // Class
 //
-class CharacteristicListAdapter(context: Context, private val dataSource: MutableList<String>, private val dataSource2: MutableList<String>, private val sensorCfg: Int): BaseAdapter() {
+class CharacteristicListAdapter(context: Context, private val dataSource: MutableList<String>, private val dataSource2: MutableList<String>/*, private val sensorCfg: Int*/): BaseAdapter() {
     //
     // Private variables and values
     //
@@ -71,12 +71,16 @@ class CharacteristicListAdapter(context: Context, private val dataSource: Mutabl
         val characterValue = holder.subtitleTextView
 
         characterName.text = dataSource[position]
+        characterValue.text = dataSource2[position]
+        /*
         if (dataSource[position] == "Sensor Configuration") {
             characterValue.text = sensorCfg.toString()
         }
         else {
             characterValue.text = dataSource2[position]
         }
+
+         */
 
         return view
     }

@@ -68,6 +68,10 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     val podS2: UUID = UUID.fromString(baseBuuid + "1414" + baseAuuid)
     val podS3: UUID = UUID.fromString(baseBuuid + "1415" + baseAuuid)
     val bsiTime: UUID = UUID.fromString(baseBuuid + "1416" + baseAuuid)
+    val sensA1: UUID = UUID.fromString(baseBuuid + "1417" + baseAuuid)
+    val sensA2: UUID = UUID.fromString(baseBuuid + "1418" + baseAuuid)
+    val sensP: UUID = UUID.fromString(baseBuuid + "1419" + baseAuuid)
+    val bsiBattery: UUID = UUID.fromString(baseBuuid + "1444" + baseAuuid)
     val uuidList: MutableList<UUID> = mutableListOf(s2MeasureInterval, s3MeasureInterval,
         dtAlarmOn, dtAlarmOff, dmAlarmS2On, dmAlarmS2Off, dmAlarmS3On, dmAlarmS3Off,
         uploadSize, sensorConfig, bsiName, podS2, podS3)
@@ -126,8 +130,16 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
         // Create string "XXX" for which senors are active = 1 or
         // inactive = 0
-        val cfg: Int =  data.pEnable + data.a1Enable +
-                data.a2Enable
+        var cfg:Int = 0
+        if (data.pEnable == 1) {
+            cfg += 4
+        }
+        if (data.a1Enable == 1) {
+            cfg += 2
+        }
+        if (data.a2Enable == 1) {
+            cfg += 1
+        }
 
         // Convert the BSI Object into a iterable object
         val dataIterable: List<Int> =
@@ -148,11 +160,17 @@ class BluetoothLEAdapter(passedActivity: Activity) {
         // Iterate and send data
         for (x in 0..character.lastIndex) {
             // Skip the name due to different type
+            /*
             if (x != 10) {
-                character[x].setValue(dataIterable[x], 17, 0)
-                gatt.writeCharacteristic(character[x]) // Do the push to the remote device
-                Thread.sleep(500)
+                */
+            character[x].setValue(dataIterable[x], 17, 0)
+            gatt.writeCharacteristic(character[x]) // Do the push to the remote device
+            Thread.sleep(1000)
+
+             /*
             }
+
+              */
         }
 
         Thread.sleep(500)
@@ -172,36 +190,8 @@ class BluetoothLEAdapter(passedActivity: Activity) {
 
     fun rx(uuidsStr: MutableList<String>, valuesStr: MutableList<String>): BSIObject {
         // MUST happen after discoveryServices
-
         // Runs when the user navigates to the BSI setup page
         // Finds current setup from the BSI for the population of UI
-
-
-
-/*
-        val uuidsStr: MutableList<String> = mutableListOf()
-        val valuesStr: MutableList<String> = mutableListOf()
-
-        // Iterate services
-        // For every characteristic find its value and build the BSI Object
-        services?.forEach { bluetoothGattService ->
-            when (bluetoothGattService?.uuid) {
-                bsiServiceUUID.uuid ->
-                    bluetoothGattService?.characteristics?.forEach {
-                        uuidsStr.add(it.uuid.toString())
-                        gatt?.readCharacteristic(it)
-                        /*
-                        if (it.getStringValue(0) != null) {
-                            valuesStr.add(it.getStringValue(0))
-                        }
-                        */
-                    }
-                // Add more here
-            }
-        }
-
- */
-
         val existingConfig = BSIObject("")
 
         uuidsStr.forEachIndexed {index, element ->
@@ -274,6 +264,13 @@ class BluetoothLEAdapter(passedActivity: Activity) {
                 podS3.toString() ->
                     try {
                         existingConfig.a2pod = valuesStr[index].toInt()
+                    }
+                    catch (e: NumberFormatException) {
+
+                    }
+                bsiBattery.toString() ->
+                    try {
+                        existingConfig.battery = valuesStr[index].toInt()
                     }
                     catch (e: NumberFormatException) {
 

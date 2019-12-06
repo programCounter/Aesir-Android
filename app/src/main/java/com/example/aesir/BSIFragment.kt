@@ -38,8 +38,11 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private var a2ui: List<TextView> = listOf()
     private var pui: List<TextView> = listOf()
     private var a1spinner: Spinner? = null
+    private var a1spinnerState: Int = 0
     private var a2spinner: Spinner? = null
+    private var a2spinnerState: Int = 0
     private var pspinner: Spinner? = null
+    private var pspinnerState: Int = 0
 
 
     //
@@ -140,8 +143,6 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         // Set button click listener
         setup_bsi_submit.setOnClickListener {
-            setup_bsi_submit.text = R.string.setup_submit_changes_alt_text_1.toString()
-
             // Collect the data from the setup page and place
             // into a bsi object to be sent
             val bsi = BSIObject(bsi_name_input.text.toString())
@@ -154,7 +155,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
             // Safe call and grab state of spinner
             if (a1spinner != null) {
-                bsi.a1Enable = a1spinner!!.id
+                //bsi.a1Enable = a1spinner!!.id
                 try {
                     bsi.a1measureint = Integer.parseInt(bsi_measurement_interval_input_analog1.text.toString())
                     bsi.a1pod = Integer.parseInt(bsi_power_on_delay_input_analog1.text.toString())
@@ -166,7 +167,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }
             if (a2spinner != null) {
-                bsi.a2Enable = a2spinner!!.id
+                //bsi.a2Enable = a2spinner!!.id
                 try {
                     bsi.a2measureint = Integer.parseInt(bsi_alarm_shutoff_input_analog2.text.toString())
                     bsi.a2pod = Integer.parseInt(bsi_power_on_delay_input_analog2.text.toString())
@@ -178,7 +179,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }
             if (pspinner != null) {
-                bsi.pEnable = pspinner!!.id
+                //bsi.pEnable = pspinner!!.id
                 try {
                     bsi.pAlarmtrigger = Integer.parseInt(bsi_alarm_trigger_input_pulse.text.toString())
                     bsi.pAlarmshutoff = Integer.parseInt(bsi_alarm_shutoff_input_pulse.text.toString())
@@ -188,14 +189,23 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 }
             }
 
+            bsi.a1Enable = a1spinnerState
+            bsi.a2Enable = a2spinnerState
+            bsi.pEnable = pspinnerState
+
             // commit the changes
             mInterface.commitConfig(bsi)
         }
 
         // Pre-fill UI elements with config data from device
         val existingConfig = mInterface.findConfig()
-        setup_bsi_submit.text = this.getText(R.string.load_config)
 
+        // Battery fields
+        val b: Int = existingConfig.battery
+        val bStr = "$b% Remaining"
+        bsi_battery.text = bStr
+
+        // Fields not contained in spinner
         bsi_name_input.text = SpannableStringBuilder(existingConfig.name)
         bsi_upld_interval_input.text = SpannableStringBuilder(existingConfig.upldSize.toString())
         bsi_tx_interval_input.text = SpannableStringBuilder(existingConfig.txInterval.toString())
@@ -207,29 +217,39 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 showHide(a2ui, true)
                 analog2spinner.setSelection(1)
             }
-            10 -> {
+            2 -> {
                 showHide(a1ui, true)
                 analog1spinner.setSelection(1)
             }
-            11 -> {
+            3 -> {
                 showHide(a1ui, true)
+                analog1spinner.setSelection(1)
                 showHide(a2ui, true)
+                analog2spinner.setSelection(1)
             }
-            100 -> {
+            4 -> {
                 showHide(pui, true)
+                pspinner!!.setSelection(1)
             }
-            101 -> {
+            5 -> {
                 showHide(pui, true)
+                pspinner!!.setSelection(1)
                 showHide(a2ui, true)
+                analog2spinner.setSelection(1)
             }
-            110 -> {
+            6 -> {
                 showHide(pui, true)
+                pspinner!!.setSelection(1)
                 showHide(a1ui, true)
+                analog1spinner.setSelection(1)
             }
-            111 -> {
+            7 -> {
                 showHide(a1ui, true)
+                analog1spinner.setSelection(1)
                 showHide(a2ui, true)
+                analog2spinner.setSelection(1)
                 showHide(pui, true)
+                pspinner!!.setSelection(1)
             }
 
             // Populate the senor configuration fields
@@ -258,9 +278,11 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 a1spinner?.id -> {
                     if (position == 1) {
                         //Sensor is active, show the UI elements
+                        a1spinnerState = 1
                         showHide(a1ui, true)
                     }
                     else {
+                        a1spinnerState = 0
                         showHide(a1ui, false)
                     }
                 }
@@ -268,9 +290,11 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 a2spinner?.id -> {
                     if (position == 1) {
                         //Sensor is active, show the UI elements
+                        a2spinnerState = 1
                         showHide(a2ui, true)
                     }
                     else {
+                        a2spinnerState = 0
                         showHide(a2ui, false)
                     }
                 }
@@ -278,9 +302,11 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 pspinner?.id -> {
                     if (position == 1) {
                         //Sensor is active, show the UI elements
+                        pspinnerState = 1
                         showHide(pui, true)
                     }
                     else {
+                        pspinnerState = 0
                         showHide(pui, false)
                     }
                 }
@@ -315,6 +341,7 @@ data class BSIObject(var name: String) {
     var txInterval: Int = 0
     var upldSize: Int = 0
     var sensorConfig: Int = 0
+    var battery: Int = 0
 
     //Sensors
     var a1Enable: Int = 0

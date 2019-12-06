@@ -8,14 +8,6 @@ Tested on Android Version: 10 and 8
 Logic for MainActivity in app Aesir is contained in this file and any linking methods or objects.
  */
 
-/*
-TODO List:
-    4. Fix Bug: If doing an async task and the user navigates off the page it was initiated on,
-    the app crashes when results are fed to UI element that no longer exists [NULL POINTER].
-    5. Come up with code naming standard and update/adhere to it.
-    7. Tx data to device [In Progress]
-    8. Read data back from device in debug fragment [In Progress]
- */
 
 //
 //Packages and Imports
@@ -32,7 +24,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.MenuItem
 import android.widget.AdapterView
 import android.widget.Button
@@ -48,7 +39,7 @@ import java.lang.NullPointerException
 //
 // Start of MainActivity
 //
-class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSISetupFragment.BSI, DebugFragment.DebugListener, LLSetupFragment.Setup {
+class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSISetupFragment.BSI, DebugFragment.DebugListener {
     //
     // Used classes
     //
@@ -57,10 +48,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     private var mGattCallback = GattCallback()
     private val discoverFrag: Fragment = DiscoverDevicesFragment()
     private val noConnectedDeviceFrag: Fragment = NoDeviceConnectedFragment()
-    //private val setupFrag: Fragment = LLSetupFragment()
-    private val bsiFrag: Fragment = BSISetupFragment()
-    private val debugFrag: Fragment = DebugFragment()
-    private val infoFrag: Fragment = InfoFragment()
 
 
     //
@@ -72,15 +59,15 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     private var uuidsStr: MutableList<String> = mutableListOf()
     private var valuesStr: MutableList<String> = mutableListOf()
     private var characterNamesStr: MutableList<String> = mutableListOf()
-    var sensorConfig: Int = 0
     private var mService: BluetoothGattService? = null
     private var config = BSIObject("KILL ME")
     private var mBluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothGatt: BluetoothGatt? = null
     private var previousFragment: MenuItem? = null
     private var bluetoothServices: MutableList<BluetoothGattService?>? = null
-    //private var bsiList: MutableList<BSIEntry>? = ArrayList()
     private var readCount: Int = 0
+    private var navBar: BottomNavigationView? = null
+    private var isBusy: Boolean = false
 
 
     //
@@ -120,42 +107,62 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         mBluetoothAdapter = mBTLEAdapter.getBluetooth()
 
         // OnClick handlers for Navigation Bar
-        val navBar = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        navBar = findViewById(R.id.bottomNavigationView)
         //What to do, when an item in the NavBar is clicked
         val itemSelectedListener =
             BottomNavigationView.OnNavigationItemSelectedListener { menuItem ->
                 // Comparable to switch case
                 when (menuItem.itemId) {
                     R.id.navigation_discover -> {
-                        changeFragment(fragmentManager, discoverFrag, menuItem, 0)
+                        if (!isBusy) {
+                            changeFragment(fragmentManager, discoverFrag, menuItem, 0)
+                        }
+                        else {
+                            tools.showToast("Unable to Navigate. Please Wait.")
+                        }
                         return@OnNavigationItemSelectedListener true
                     }
 
                     //Apply new logic for deciding what setup page to navigate to here
+                    /*
+                    CHECK VAR TO SEE IF BG TASK IS RUNNING, IF YES, DO NOT NAVIGATE
+                    INFORM USER WHY THEY CAN NOT NAVIGATE WITH A TOAST
+                     */
                     R.id.navigation_setup -> {
                         // See if a device is connected. If not, show the no connection fragment.
                         // If a device is connected, determine if it is a BSI or Local Listener
-                        if (getConnectionState() == tools.DISCONNECTED) {
+                        if (getConnectionState() == tools.DISCONNECTED && !isBusy) {
                             changeFragment(fragmentManager, noConnectedDeviceFrag, menuItem, 0)
                         }
+                        else if (getConnectionState() == tools.CONNECTED && !isBusy) {
+                            changeFragment(fragmentManager, BSISetupFragment(), menuItem, 0)
+                        }
                         else {
-                            changeFragment(fragmentManager, bsiFrag, menuItem, 0)
+                            tools.showToast("Unable to Navigate. Please Wait.")
                         }
                         return@OnNavigationItemSelectedListener true
                     }
 
                     R.id.navigation_debug -> {
-                        if (getConnectionState() == tools.DISCONNECTED){
+                        if (getConnectionState() == tools.DISCONNECTED && !isBusy){
                             changeFragment(fragmentManager, noConnectedDeviceFrag, menuItem, 0)
                         }
+                        else if (getConnectionState() == tools.CONNECTED && !isBusy) {
+                            changeFragment(fragmentManager, DebugFragment(), menuItem, 0)
+                        }
                         else {
-                            changeFragment(fragmentManager, debugFrag, menuItem, 0)
+                            tools.showToast("Unable to Navigate. Please Wait.")
                         }
                         return@OnNavigationItemSelectedListener true
                     }
 
                     R.id.navigation_info -> {
-                        changeFragment(fragmentManager, infoFrag, menuItem, 0)
+                        if (!isBusy) {
+                            changeFragment(fragmentManager, InfoFragment(), menuItem, 0)
+                        }
+                        else {
+                            tools.showToast("Unable to Navigate. Please Wait.")
+                        }
                         return@OnNavigationItemSelectedListener true
                     }
                 }
@@ -164,7 +171,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             }
 
         //Set the onClick listener to the object defined above
-        navBar.setOnNavigationItemSelectedListener(itemSelectedListener)
+        navBar?.setOnNavigationItemSelectedListener(itemSelectedListener)
 
         //Start with the discover fragment when the app opens
         changeFragment(fragmentManager, discoverFrag, null, 1)
@@ -259,6 +266,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
 
     // Runs when the Search button is pressed.
     override fun onButtonSearch() {
+        isBusy = true
         mBTLEAdapter.findBluetoothDevices(mBluetoothAdapter)
         search.text = getString(R.string.search_button_alt_text_3)
     }
@@ -286,24 +294,10 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                 val button = findViewById<Button>(R.id.search)
                 button.text = getString(R.string.search_button_alt_text_2)
             }
+            isBusy = true
             bluetoothGatt = clickedItem.device.connectGatt(applicationContext, false, mGattCallback, BluetoothDevice.TRANSPORT_LE)
         }
     }
-
-
-    //
-    // Local Listener Setup Functions [NOT IMPLEMENTED]
-    //
-    // Runs when the view is created.
-    /*
-    override fun setupListViewDataMover(): BSIListAdapter {
-        return BSIListAdapter(this, bsiList)
-    }
-
-    override fun onAddDevicesPressed() {
-    //    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-     */
 
 
     //
@@ -328,6 +322,7 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         return config
     }
 
+    // Runs when the user clicks the commit changes button on the setup page
     override fun commitConfig(bsi: BSIObject) {
         if (bluetoothGatt != null) {
             Handler(Looper.getMainLooper()).post {
@@ -350,7 +345,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                     configService.getCharacteristic(mBTLEAdapter.dmAlarmS3Off),
                     configService.getCharacteristic(mBTLEAdapter.uploadSize),
                     configService.getCharacteristic(mBTLEAdapter.sensorConfig),
-                    //configService.getCharacteristic(mBTLEAdapter.uploadInterval),
                     configService.getCharacteristic(mBTLEAdapter.podS2),
                     configService.getCharacteristic(mBTLEAdapter.podS3))
 
@@ -358,18 +352,14 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                 listOf(configService.getCharacteristic(mBTLEAdapter.bsiName),
                 configService.getCharacteristic(mBTLEAdapter.bsiTime))
 
-
             // Send the configuration to the remote device
+            isBusy = true
             mBTLEAdapter.tx(bluetoothGatt!!, configCharacteristic, strConfigCharacteristic, bsi)
-            // Update name displayed on page (since the user can change it)
+            // Update data once complete
         }
         else {
             tools.showToast("Error. No device connected!")
         }
-    }
-
-    override fun onSubmitChanges() {
-        tools.showToast("Not sure how you got here...")
     }
 
 
@@ -382,27 +372,52 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
         // Creates a list of user readable names vs UUID strings
         uuidsStr.forEach { s ->
             when(s) {
-                mBTLEAdapter.s3MeasureInterval.toString() -> characterNamesStr.add("A2 Measurement Interval")
-                mBTLEAdapter.bsiName.toString() -> characterNamesStr.add("BSI Name")
-                mBTLEAdapter.bsiTime.toString() -> characterNamesStr.add("UTC Time (Seconds)")
-                mBTLEAdapter.dmAlarmS2Off.toString() -> characterNamesStr.add("A1 Alarm OFF Status")
-                mBTLEAdapter.dmAlarmS2On.toString() -> characterNamesStr.add("A1 Alarm ON Status")
-                mBTLEAdapter.dmAlarmS3Off.toString() -> characterNamesStr.add("A2 Alarm OFF Status")
-                mBTLEAdapter.dmAlarmS3On.toString() -> characterNamesStr.add("A2 Alarm ON Status")
-                mBTLEAdapter.dtAlarmOff.toString() -> characterNamesStr.add("Pulse Alarm OFF Status")
-                mBTLEAdapter.dtAlarmOn.toString() -> characterNamesStr.add("Pulse Alarm ON Status")
-                mBTLEAdapter.podS2.toString() -> characterNamesStr.add("Power ON Delay A1")
-                mBTLEAdapter.podS3.toString() -> characterNamesStr.add("Power OFF Delay A2")
-                mBTLEAdapter.s2MeasureInterval.toString() -> characterNamesStr.add("A1 Measurement Interval")
-                mBTLEAdapter.sensorConfig.toString() -> characterNamesStr.add("Sensor Configuration")
-                mBTLEAdapter.uploadSize.toString() -> characterNamesStr.add("Upload Size")
+                mBTLEAdapter.s3MeasureInterval.toString() -> characterNamesStr.add("A2 Measurement Interval:")
+                mBTLEAdapter.bsiName.toString() -> characterNamesStr.add("BSI Name:")
+                mBTLEAdapter.bsiTime.toString() -> characterNamesStr.add("UTC Time (Seconds):")
+                mBTLEAdapter.dmAlarmS2Off.toString() -> characterNamesStr.add("A1 Alarm OFF Status:")
+                mBTLEAdapter.dmAlarmS2On.toString() -> characterNamesStr.add("A1 Alarm ON Status:")
+                mBTLEAdapter.dmAlarmS3Off.toString() -> characterNamesStr.add("A2 Alarm OFF Status:")
+                mBTLEAdapter.dmAlarmS3On.toString() -> characterNamesStr.add("A2 Alarm ON Status:")
+                mBTLEAdapter.dtAlarmOff.toString() -> characterNamesStr.add("Pulse Alarm OFF Status:")
+                mBTLEAdapter.dtAlarmOn.toString() -> characterNamesStr.add("Pulse Alarm ON Status:")
+                mBTLEAdapter.podS2.toString() -> characterNamesStr.add("Power ON Delay A1:")
+                mBTLEAdapter.podS3.toString() -> characterNamesStr.add("Power OFF Delay A2:")
+                mBTLEAdapter.s2MeasureInterval.toString() -> characterNamesStr.add("A1 Measurement Interval:")
+                mBTLEAdapter.sensorConfig.toString() -> characterNamesStr.add("Sensor Configuration:")
+                mBTLEAdapter.uploadSize.toString() -> characterNamesStr.add("Upload Size:")
+                mBTLEAdapter.sensA1.toString() -> characterNamesStr.add("Analog 1 Sensor Reading:")
+                mBTLEAdapter.sensA2.toString() -> characterNamesStr.add("Analog 2 Sensor Reading:")
+                mBTLEAdapter.sensP.toString() -> characterNamesStr.add("Pulse Sensor Reading:")
+                mBTLEAdapter.bsiBattery.toString() -> characterNamesStr.add("Current BSI Battery:")
             }
         }
 
         // pass the two string lists to be adapted into basic listView
-        val mAdapter = CharacteristicListAdapter(this, characterNamesStr, valuesStr, sensorConfig)
+        val mAdapter = CharacteristicListAdapter(this, characterNamesStr, valuesStr)
         val servicesList = findViewById<ListView>(R.id.debug_services_list)
         servicesList.adapter = mAdapter
+    }
+
+    override fun updateDataMover() {
+        // update debug button wth new text here
+        val button = findViewById<Button>(R.id.debug_refresh_characters)
+        if (button != null) {
+            button.text = getString(R.string.debug_refresh_button_alt_text_1)
+        }
+        // Reset counter and accumulated data
+        readCount = 0
+        uuidsStr = mutableListOf()
+        valuesStr = mutableListOf()
+
+        // Ask for new data
+        try {
+            isBusy = true
+            bluetoothGatt?.readCharacteristic(mService?.getCharacteristic(mBTLEAdapter.uuidList[readCount]))
+        }
+        catch (e: NullPointerException) {
+            // Implement
+        }
     }
 
 
@@ -417,13 +432,8 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             // If we connected to the GATT server find services on device
             // Change button text back MUST BE DONE ON UI THREAD
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Handler(Looper.getMainLooper()).post {
-                    val button = findViewById<Button>(R.id.search)
-                    if (button != null) {
-                        button.text = getString(R.string.search_button_alt_text_1)
-                    }
-                }
                 valuesStr = mutableListOf()
+                uuidsStr = mutableListOf()
                 gatt.discoverServices()
             }
         }
@@ -433,6 +443,11 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             bluetoothServices = gatt?.services
             mService = bluetoothGatt?.getService(mBTLEAdapter.bsiServiceUUID.uuid)
             try {
+                Handler(Looper.getMainLooper()).post {
+                    val button = findViewById<Button>(R.id.search)
+                    button.text = getString(R.string.search_button_alt_text_4)
+                }
+                readCount = 0
                 bluetoothGatt?.readCharacteristic(mService?.getCharacteristic(mBTLEAdapter.uuidList[readCount]))
             }
             catch (e: NullPointerException) {
@@ -450,19 +465,19 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
                 val submitButton = findViewById<Button>(R.id.setup_bsi_submit)
                 submitButton.text = getString(R.string.setup_submit_changes)
             }
+            isBusy = false
         }
 
         override fun onCharacteristicRead(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
             // Load this when we connect to the device
             // This is where i pull config data from
             uuidsStr.add(characteristic.uuid.toString())
-            if (characteristic.uuid.toString() == mBTLEAdapter.sensorConfig.toString()) {
-                // Need the sensor config as a integer
-                sensorConfig = characteristic.getIntValue(17, 0)
-                valuesStr.add("")
+            if (characteristic.uuid.toString() == mBTLEAdapter.bsiName.toString()) {
+                valuesStr.add(characteristic.getStringValue(0))
             }
             else {
-                valuesStr.add(characteristic.getStringValue(0))
+                //sensorConfig = characteristic.getIntValue(17, 0)
+                valuesStr.add(characteristic.getIntValue(17, 0).toString())
             }
 
             // read the next value
@@ -472,9 +487,25 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
             }
             else {
                 // break the cycle update the config with the lists
-                Log.d("Reading", "Done Reading!")
+                // Reset button(s) text here
                 config = mBTLEAdapter.rx(uuidsStr, valuesStr)
 
+                if (navBar?.selectedItemId == R.id.navigation_discover) {
+                    Handler(Looper.getMainLooper()).post {
+                        val button = findViewById<Button>(R.id.search)
+                        button.text = getString(R.string.search_button_alt_text_1)
+                    }
+                }
+                else if (navBar?.selectedItemId == R.id.navigation_debug) {
+                    Handler(Looper.getMainLooper()).post {
+                        debugDataMover() // Update page with new content
+                        val button = findViewById<Button>(R.id.debug_refresh_characters)
+                        if (button != null) {
+                            button.text = getString(R.string.debug_refresh_button)
+                        }
+                    }
+                }
+                isBusy = false
             }
         }
     }

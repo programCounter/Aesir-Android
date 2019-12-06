@@ -16,6 +16,7 @@
     <string name="search_button_alt_text_1">Disconnect</string>
     <string name="search_button_alt_text_2">Connecting…</string>
     <string name="search_button_alt_text_3">Searching…</string>
+    <string name="search_button_alt_text_4">Loading BSI Configuration…</string>
     <string name="search_list_description">Press the button to search nearby Bluetooth Devices.
     They will appear in the list below. Click on a list item to connect to the device.</string>
     <string name="image_description_string">Device Icon Here</string>
@@ -51,7 +52,7 @@
     <string name="bsi_upld_interval_input_hint">File size in Bytes (0-4096)</string>
     <string name="sensor_settings_header"><b><u>Sensor Settings:</u></b></string>
     <string name="bsi_power_on_delay">Power On Delay (seconds)</string>
-    <string name="bsi_power_on_delay_input_hint">Time (ss)</string>
+    <string name="bsi_power_on_delay_input_hint">Time (ms)</string>
     <string name="bsi_measurement_interval">Measurement Interval</string>
     <string name="bsi_measurement_interval_input_hint">Time (mm)</string>
     <string name="bsi_analog_sensor_2">Analog 2</string>
@@ -73,6 +74,8 @@
     correctly and that it received the configuration as you expected.</string>
     <string name="debug_services_list_title"><u>Characteristics and Values:</u></string>
     <string name="debug_characteristics_list_title">List of Device Characteristics</string>
+    <string name="debug_refresh_button">Refresh</string>
+    <string name="debug_refresh_button_alt_text_1">Refreshing…</string>
 
 
     <!-- Info Fragment Strings -->

@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.debug_fragment.*
+import kotlinx.android.synthetic.main.debug_fragment.view.*
 
 
 //
@@ -47,6 +48,10 @@ class DebugFragment : Fragment() {
 
         // Gets and populates data into UI when done drawing
         listener.debugDataMover()
+
+        view.debug_refresh_characters.setOnClickListener {
+            listener.updateDataMover() // Updates the characteristics
+        }
     }
 
 
@@ -63,5 +68,6 @@ class DebugFragment : Fragment() {
 
     interface DebugListener {
         fun debugDataMover()
+        fun updateDataMover()
     }
 }
