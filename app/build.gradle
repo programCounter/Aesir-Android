@@ -3,6 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+    signingConfigs {
+        sign0 {
+            storeFile file('C:\\Users\\riley\\GitHub_Repos\\Aesir-Android\\Release\\Æsir-Relase-01.jks')
+            storePassword 'rileylarche'
+            keyAlias = 'key0'
+            keyPassword 'rileylarche'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
@@ -17,6 +25,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.sign0
         }
     }
 }
