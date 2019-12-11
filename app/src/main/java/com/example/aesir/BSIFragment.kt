@@ -202,7 +202,7 @@ class BSISetupFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         // Battery fields
         val b: Int = existingConfig.battery
-        val bStr = "$b% Remaining"
+        val bStr = "${b}mV Remaining"
         bsi_battery.text = bStr
 
         // Fields not contained in spinner

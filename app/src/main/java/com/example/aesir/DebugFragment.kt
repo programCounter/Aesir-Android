@@ -1,7 +1,7 @@
 /*
 File Name: DiscoverDevicesFragment.kt
 Author: Riley Larche
-Date Updated: 2019-11-22
+Date Updated: 2019-12-06
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.debug_fragment.*
 import kotlinx.android.synthetic.main.debug_fragment.view.*
 
 

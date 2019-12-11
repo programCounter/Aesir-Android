@@ -1,7 +1,7 @@
 /*
 File Name: DiscoverDevicesFragment.kt
 Author: Riley Larche
-Date Updated: 2019-12-01
+Date Updated: 2019-12-06
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -72,15 +72,6 @@ class CharacteristicListAdapter(context: Context, private val dataSource: Mutabl
 
         characterName.text = dataSource[position]
         characterValue.text = dataSource2[position]
-        /*
-        if (dataSource[position] == "Sensor Configuration") {
-            characterValue.text = sensorCfg.toString()
-        }
-        else {
-            characterValue.text = dataSource2[position]
-        }
-
-         */
 
         return view
     }

@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -74,7 +73,6 @@
                 android:id="@+id/bsi_power_on_delay_analog1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:text="@string/bsi_power_on_delay"
                 app:layout_constraintStart_toStartOf="@+id/bsi_analog_1_text"
@@ -135,7 +133,6 @@
                 android:id="@+id/bsi_power_on_delay_analog2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:text="@string/bsi_power_on_delay"
                 app:layout_constraintStart_toStartOf="@+id/bsi_analog_2_text"
@@ -197,7 +194,6 @@
                 android:id="@+id/bsi_power_on_delay_pulse"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:text="@string/bsi_flood_alarm_trigger_pulse"
                 app:layout_constraintStart_toStartOf="@+id/bsi_pulse_text"

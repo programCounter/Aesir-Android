@@ -1,7 +1,7 @@
 /*
 File Name: MainActivity.kt
 Author: Riley Larche
-Date Updated: 2019-12-01
+Date Updated: 2019-12-11
 Android Studio Version:3.5.1
 Tested on Android Version: 10 and 8
 
@@ -77,8 +77,6 @@ class MainActivity : AppCompatActivity(), DiscoverDevicesFragment.Discover, BSIS
     // a responsive UI
     override fun onStart() {
         super.onStart()
-
-
         //Check for permissions right as the app starts
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
             // Permission is not granted, request access to permission

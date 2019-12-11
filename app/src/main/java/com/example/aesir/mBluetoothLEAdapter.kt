@@ -1,7 +1,7 @@
 /*
 File Name: mBluetoothLEAdapter.kt
 Author: Riley Larche
-Date Updated: 2019-11-21
+Date Updated: 2019-12-11
 Android Studio Version:
 Tested on Android Version: 10
 
@@ -38,7 +38,7 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     private val reportDelay: Long = 500
     private val mCallback = MCallBack()
     private var scanner: BluetoothLeScanner? = null
-    // Combine A then 140X then B to create UUID
+    // Combine A then 14XX then B to create UUID
     private val baseBuuid: String = "0e28"
     private val baseAuuid: String = "-6801-4160-a7d6-a3b252dc43a1"
 
@@ -128,9 +128,9 @@ class BluetoothLEAdapter(passedActivity: Activity) {
     fun tx(gatt: BluetoothGatt, character: List<BluetoothGattCharacteristic>, strCharacter: List<BluetoothGattCharacteristic>, data: BSIObject) {
         //Runs on submit button push
 
-        // Create string "XXX" for which senors are active = 1 or
+        // Create binary value "XXX" for which senors are active = 1 or
         // inactive = 0
-        var cfg:Int = 0
+        var cfg = 0
         if (data.pEnable == 1) {
             cfg += 4
         }
